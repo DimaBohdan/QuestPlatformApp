@@ -1,0 +1,194 @@
+// This is your Prisma schema file,
+// learn more about it in the docs: https://pris.ly/d/prisma-schema
+
+// Looking for ways to speed up your queries, or scale easily with your serverless or edge functions?
+// Try Prisma Accelerate: https://pris.ly/cli/accelerate-init
+
+generator client {
+  provider = "prisma-client-js"
+}
+
+datasource db {
+  provider = "postgresql"
+  url      = env("DATABASE_URL")
+}
+
+model User {
+  id              String  @id @default(uuid()) @map("id")
+  nickname        String  @unique
+  username        String
+  email           String  @unique
+  avatar          String
+  info            String?
+  createdAt       DateTime @default(now())
+  role            UserRole @default(USER)
+  createdQuests   Quest[] @relation("UserCreatedQuests")
+  completedQuests UserCompletedQuest[]
+  completedQuestIds String[]
+  achievements    Achievement[]
+  reviews         QuestReview[]
+  sentFriendRequests  Friendship[]    @relation("UserRequesterFriendships") 
+  receivedFriendRequestd Friendship[] @relation("UserReceiverFriendships")
+}
+
+model Friendship {
+  requester   User   @relation(name: "UserRequesterFriendships", fields: [requesterId], references: [id], onDelete: Cascade)
+  requesterId String
+  receiver    User   @relation(name: "UserReceiverFriendships", fields: [receiverId], references: [id], onDelete: Cascade)
+  receiverId  String
+  status      Status  @default(PENDING)
+  createdAt   DateTime @default(now())
+  @@id([requesterId, receiverId])
+  @@map("friendships")
+}
+
+model Quest {
+  id          String     @id @default(uuid()) @map("id")
+  title       String
+  description String?       
+  authorId    String
+  author      User    @relation("UserCreatedQuests", fields: [authorId], references: [id], onDelete: Cascade)
+  completedByUsers UserCompletedQuest[]
+  time        Float?
+  difficulty  Int
+  category    Category
+  tags        String[]       
+  isPublic    Boolean     @default(false)
+  rating      Float?
+  tasks       QuestTask[]
+  taskQuantity Int        @default(0)     
+  previewImage MediaFile?
+  reviews     QuestReview[]
+  themeId     String?
+  theme       QuestTheme? @relation(fields: [themeId], references: [id])
+  createdAt   DateTime    @default(now())
+}
+
+enum UserRole {
+  USER
+  ADMIN
+}
+
+model UserCompletedQuest {
+  userId  String
+  questId String
+  user    User  @relation(fields: [userId], references: [id], onDelete: Cascade)
+  quest   Quest @relation(fields: [questId], references: [id], onDelete: Cascade)
+
+  @@id([userId, questId])
+}
+
+model QuestTask {
+  id      String   @id @default(uuid())
+  questId String
+  quest   Quest    @relation(fields: [questId], references: [id], onDelete: Cascade)
+  question String
+  type    QuestTaskType
+  media   MediaFile?
+  createdAt DateTime @default(now())
+  options Option[]          //SINGLE_CHOICE, MULTIPLE_CHOICE
+  answerIds String[]        //SINGLE_CHOICE, MULTIPLE_CHOICE
+
+  textAnswer String?        // TEXT_FIELD
+  targetX    Float?         // FIND_ON_PICTURE, FIND_ON_MAP
+  targetY    Float?         // FIND_ON_PICTURE, FIND_ON_MAP
+  radius     Float?         // FIND_ON_PICTURE, FIND_ON_MAP
+  content    String?        // PLOT
+  choices    Json?          // PLOT
+
+  @@map("quest_tasks")
+}
+
+enum QuestTaskType {
+  SINGLE_CHOICE
+  MULTIPLE_CHOICE
+  TEXT_FIELD
+  FIND_ON_PICTURE
+  FIND_ON_MAP
+  PLOT
+}
+
+model MediaFile {
+  id        String  @id @default(uuid())
+  url       String  @unique // Cloudinary / YouTube
+  type      MediaFileType
+  width     Int?   // IMAGES
+  height    Int?   // IMAGES
+  duration  Float? // VIDEOS
+
+  task      QuestTask? @relation(fields: [taskId], references: [id])
+  taskId    String?    @unique
+
+  option    Option?    @relation(fields: [optionId], references: [id])
+  optionId  String?    @unique    
+
+  quest     Quest? @relation(fields: [questId], references: [id])
+  questId   String?    @unique   
+
+  createdAt DateTime @default(now())
+
+  @@map("media_files")
+}
+
+enum MediaFileType {
+  IMAGE
+  VIDEO
+}
+
+model Option {
+  id       String       @id @default(uuid())
+  text     String
+  mediaId  String?
+  media    MediaFile?
+  task     QuestTask @relation(fields: [taskId], references: [id])
+  taskId   String
+  createdAt DateTime @default(now())
+  isCorrect Boolean  @default(false)
+
+}
+
+model QuestReview {
+  id        String   @id @default(uuid())
+  score     Int
+  comment   String?
+  authorId  String
+  author    User     @relation(fields: [authorId], references: [id], onDelete: Cascade)
+  questId   String
+  quest     Quest    @relation(fields: [questId], references: [id], onDelete: Cascade)
+  createdAt DateTime @default(now())
+}
+
+model QuestTheme {
+  id          String   @id @default(uuid())
+  name        String   @unique
+  description String?
+  background  String?
+  textColor   String?
+  fontStyle   String?
+  script      String?
+  quests      Quest[]
+}
+
+model Achievement {
+  id         String   @id @default(uuid())
+  title      String
+  condition  Json
+  users      User[]
+}
+
+enum Category {
+  GAMES
+  SPORT
+  ANIME
+  MANGA
+  FILMS
+  STUDY
+  PSYCHOLOGY
+  OTHER
+}
+
+enum Status {
+  PENDING
+  APPROVED
+  DECLINED
+}
