@@ -7,12 +7,12 @@ import { APP_GUARD } from '@nestjs/core';
 import { JwtAuthGuard } from 'utils/guards/jwt.guard';
 import { RolesGuard } from 'utils/guards/roles.guard';
 import { AuthController } from './auth/auth.controller';
-import { OwnershipGuard } from 'utils/guards/ownership.guard';
 import { PrismaModule } from './prisma/prisma.module';
+import { QuestModule } from './quest/quest.module';
 
 
 @Module({
-  imports: [AuthModule, UserModule, PrismaModule],
+  imports: [AuthModule, UserModule, PrismaModule, QuestModule],
   controllers: [AuthController, UserController],
   providers: [{
     provide: APP_GUARD,
@@ -22,7 +22,6 @@ import { PrismaModule } from './prisma/prisma.module';
     provide: APP_GUARD,
     useClass: RolesGuard,
   },
-  OwnershipGuard,
   UserService],
 })
 export class AppModule {}
