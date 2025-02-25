@@ -1,6 +1,5 @@
 import { CanActivate, ExecutionContext, Injectable, ForbiddenException, Type } from '@nestjs/common';
 import { PrismaService } from 'src/prisma/prisma.service';
-import { Reflector } from '@nestjs/core';
 import { RequestWithUser } from 'utils/types/RequestWithUser';
 
 export function IsOwner<T extends keyof PrismaService, K extends string>(
@@ -9,7 +8,7 @@ export function IsOwner<T extends keyof PrismaService, K extends string>(
 ): Type<CanActivate> {
   @Injectable()
   class Guard implements CanActivate {
-    constructor(private readonly prisma: PrismaService, private readonly reflector: Reflector) {}
+    constructor(private readonly prisma: PrismaService) {}
 
     async canActivate(context: ExecutionContext): Promise<boolean> {
       const request = context.switchToHttp().getRequest<RequestWithUser>();
