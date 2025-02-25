@@ -1,12 +1,11 @@
-import { Controller, Get, Post, Body, Query, NotFoundException, UseGuards, Param, Delete, Patch } from '@nestjs/common';
+import { Controller, Get, Body, UseGuards, Param, Delete, Patch } from '@nestjs/common';
 import { UserService } from './user.service';
-import { CreateUserDto } from './dto/user.create.dto';
 import { User } from '@prisma/client';
 import { JwtAuthGuard } from 'utils/guards/jwt.guard';
 import { RolesGuard } from 'utils/guards/roles.guard';
 import { Roles } from 'utils/decorators/roles.decorator';
 import { UpdateUserDto } from './dto/user.update.dto';
-import { OwnershipGuard } from 'utils/guards/ownership.guard';
+import { IsOwner } from 'utils/guards/isOwner.guard';
 
 @Controller('user')
 @UseGuards(JwtAuthGuard, RolesGuard)
@@ -23,7 +22,7 @@ export class UserController {
     return this.userService.findByNickname(nickname);
   }
 
-  @UseGuards(OwnershipGuard)
+  @UseGuards(IsOwner('user', 'id'))
   @Patch(':id')
   async updateUserById(
     @Param('id') id: string,
@@ -32,9 +31,8 @@ export class UserController {
     return this.userService.updateUserById(id, data);
   }
 
-  @UseGuards(OwnershipGuard)
+  @UseGuards(IsOwner('user', 'id'))
   @Delete('delete/:id')
-  @Roles('ADMIN')
   async deleteUserByNickname(@Param('id') id: string): Promise<User> {
     return this.userService.deleteById(id);
   }
