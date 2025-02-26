@@ -110,6 +110,7 @@ enum QuestTaskType {
 
 model MediaFile {
   id        String  @id @default(uuid())
+  public_id String?  @unique
   url       String  @unique // Cloudinary / YouTube
   type      MediaFileType
   width     Int?   // IMAGES

@@ -9,10 +9,11 @@ import { RolesGuard } from 'utils/guards/roles.guard';
 import { AuthController } from './auth/auth.controller';
 import { PrismaModule } from './prisma/prisma.module';
 import { QuestModule } from './quest/quest.module';
+import { MediaModule } from './media/media.module';
 
 
 @Module({
-  imports: [AuthModule, UserModule, PrismaModule, QuestModule],
+  imports: [AuthModule, UserModule, PrismaModule, QuestModule, MediaModule],
   controllers: [AuthController, UserController],
   providers: [{
     provide: APP_GUARD,
