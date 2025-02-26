@@ -16,15 +16,27 @@ export class QuestRepository {
         category: filter?.category,
         difficulty: filter?.difficulty,
       },
-      include: { author: true, reviews: true, tasks: true },
+      include: {
+        author: true,
+        reviews: true,
+        tasks: true,
+        previewImage: true,
+        theme: true,
+      },
       orderBy: { createdAt: 'desc' },
     });
   }
 
   async findById(id: string): Promise<Quest | null> {
     return this.prisma.quest.findUnique({
-      where: { id, },
-      include: { author: true, reviews: true, tasks: true },
+      where: { id, isPublic: true },
+      include: {
+        author: true,
+        reviews: true,
+        tasks: true,
+        previewImage: true,
+        theme: true,
+      },
     });
   }
 
@@ -36,7 +48,6 @@ export class QuestRepository {
       },
     });
   }
-  
 
   async update(id: string, data: UpdateQuestDto): Promise<Quest> {
     return this.prisma.quest.update({
