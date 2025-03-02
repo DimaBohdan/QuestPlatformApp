@@ -9,7 +9,7 @@ export class GoogleStrategy extends PassportStrategy(Strategy, 'google') {
     super({
       clientID: process.env.GOOGLE_CLIENT_ID,
       clientSecret: process.env.GOOGLE_CLIENT_SECRET,
-      callbackURL: 'http://localhost:3000/auth/google/callback',
+      callbackURL: process.env.GOOGLE_REDIRECT_URI,
       scope: ['email', 'profile'],
     });
   }
@@ -17,7 +17,13 @@ export class GoogleStrategy extends PassportStrategy(Strategy, 'google') {
   async validate(accessToken: string, refreshToken: string, profile: any, done: VerifyCallback) {
     const { displayName, emails, photos } = profile;
 
-    let user = await this.userService.findByEmail(emails[0].value);
+    let user;
+    try {
+      user = await this.userService.findByEmail(emails[0].value);
+    }
+    catch {
+      user = null;
+    }
     if (!user) {
       user = await this.userService.createUser({
         nickname: displayName.toLowerCase().replace(/\s+/g, '') + `_${Date.now()}`,

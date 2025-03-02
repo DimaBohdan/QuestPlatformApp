@@ -19,7 +19,7 @@ CREATE TABLE "User" (
     "nickname" TEXT NOT NULL,
     "username" TEXT NOT NULL,
     "email" TEXT NOT NULL,
-    "avatar" TEXT,
+    "avatar" TEXT NOT NULL,
     "info" TEXT,
     "createdAt" TIMESTAMP(3) NOT NULL DEFAULT CURRENT_TIMESTAMP,
     "role" "UserRole" NOT NULL DEFAULT 'USER',
@@ -86,6 +86,7 @@ CREATE TABLE "quest_tasks" (
 -- CreateTable
 CREATE TABLE "media_files" (
     "id" TEXT NOT NULL,
+    "public_id" TEXT,
     "url" TEXT NOT NULL,
     "type" "MediaFileType" NOT NULL,
     "width" INTEGER,
@@ -158,6 +159,9 @@ CREATE UNIQUE INDEX "User_nickname_key" ON "User"("nickname");
 
 -- CreateIndex
 CREATE UNIQUE INDEX "User_email_key" ON "User"("email");
+
+-- CreateIndex
+CREATE UNIQUE INDEX "media_files_public_id_key" ON "media_files"("public_id");
 
 -- CreateIndex
 CREATE UNIQUE INDEX "media_files_url_key" ON "media_files"("url");
