@@ -12,6 +12,14 @@ export class MediaService {
     @Inject('Cloudinary') private readonly cloudinaryInstance: typeof cloudinary,
   ) {}
 
+  async findMediaFile(entityKey: string, entityId: string): Promise<MediaFile> {
+    const file = await this.mediaRepository.findExistingMedia(entityKey, entityId);
+    if (!file) {
+      throw new NotFoundException(`File not found`);
+    }
+    return file;
+  }
+
   async uploadImage(file: Express.Multer.File, data: CreateMediaRequest): Promise<MediaFile> {
     if (!file) throw new BadRequestException('File must be provided');
 

@@ -27,9 +27,27 @@ export class QuestRepository {
     });
   }
 
+  async findMyQuests(userId: string, filter?: { title?: string; category?: Category; difficulty?: number }): Promise<Quest[]> {
+    return this.prisma.quest.findMany({
+      where: {
+        isPublic: true,
+        authorId: userId,
+        title: filter?.title ? { contains: filter.title, mode: 'insensitive' } : undefined,
+        category: filter?.category,
+        difficulty: filter?.difficulty,
+      },
+      include: {
+        reviews: true,
+        tasks: true,
+        previewImage: true,
+        theme: true,
+      },
+      orderBy: { createdAt: 'desc' },
+    });
+  }
   async findById(id: string): Promise<Quest | null> {
     return this.prisma.quest.findUnique({
-      where: { id, isPublic: true },
+      where: { id, },
       include: {
         author: true,
         reviews: true,
