@@ -1,11 +1,14 @@
-import { Controller, Get, Body, UseGuards, Param, Delete, Patch } from '@nestjs/common';
+import { Controller, Get, Body, UseGuards, Param, Delete, Patch, Req, ForbiddenException } from '@nestjs/common';
 import { UserService } from './user.service';
 import { User } from '@prisma/client';
 import { JwtAuthGuard } from 'utils/guards/jwt.guard';
 import { RolesGuard } from 'utils/guards/roles.guard';
 import { Roles } from 'utils/decorators/roles.decorator';
 import { UpdateUserDto } from './dto/user.update.dto';
-import { IsOwner } from 'utils/guards/isOwner.guard';
+import { AppAbility, CaslForbiddenErrorI } from 'utils/permissions/casl-rules.factory';
+import { CaslForbiddenError } from 'utils/decorators/casl-forbidden-error.decorator';
+import { subject } from '@casl/ability';
+
 
 @Controller('user')
 @UseGuards(JwtAuthGuard, RolesGuard)
@@ -22,18 +25,24 @@ export class UserController {
     return this.userService.findByNickname(nickname);
   }
 
-  @UseGuards(IsOwner('user', 'id'))
   @Patch(':id')
   async updateUserById(
     @Param('id') id: string,
     @Body() data: UpdateUserDto,
+    @Req() @CaslForbiddenError() forbiddenError: CaslForbiddenErrorI,
   ): Promise<User> {
+    const user = await this.userService.findById(id);
+    forbiddenError.throwUnlessCan('manage', subject('User', user));
     return this.userService.updateUserById(id, data);
   }
 
-  @UseGuards(IsOwner('user', 'id'))
-  @Delete('delete/:id')
-  async deleteUserByNickname(@Param('id') id: string): Promise<User> {
+  @Delete(':id')
+  async deleteUserByNickname(
+    @Param('id') id: string, 
+    @Req() @CaslForbiddenError() forbiddenError: CaslForbiddenErrorI,
+  ): Promise<User> {
+    const user = await this.userService.findById(id);
+    forbiddenError.throwUnlessCan('manage', subject('User', user));
     return this.userService.deleteById(id);
   }
 
