@@ -1,4 +1,4 @@
-import { Controller, Get, Post, Put, Body, Param, Query, UseGuards, Delete, Request, Req, Patch, UploadedFile } from '@nestjs/common';
+import { Controller, Get, Post, Put, Body, Param, Query, UseGuards, Delete, Request, Req, Patch, UploadedFile, NotFoundException } from '@nestjs/common';
 import { CreateQuestDto } from './dto/quest.create.dto';
 import { JwtAuthGuard } from 'utils/guards/jwt.guard';
 import { Category, Quest, User} from '@prisma/client';
@@ -11,6 +11,9 @@ import { CaslForbiddenError } from 'utils/decorators/casl-forbidden-error.decora
 import { CaslForbiddenErrorI } from 'utils/permissions/casl-rules.factory';
 import { subject } from '@casl/ability';
 import { RequestWithUser } from 'utils/types/RequestWithUser';
+import { AnswerDto } from 'utils/interfaces/user.answer.dto';
+
+const generatorsMap = new Map<string, AsyncGenerator>();
 
 @Controller('quest')
 @UseGuards(JwtAuthGuard, RolesGuard)
@@ -41,6 +44,30 @@ export class QuestController {
   @Get(':id')
   async getQuestById(@Param('id') id: string): Promise<Quest> {
     return this.questService.findQuestById(id);
+  }
+
+  @Post(':questId/start')
+  async startQuest(
+    @Req() req: RequestWithUser, 
+    @Param('questId') questId: string
+  ) {
+    const startedQuest = this.questService.startQuest(req.user.id, questId);
+    generatorsMap.set(req.user.id, startedQuest);
+    
+    return (await startedQuest.next()).value;
+  }
+
+  @Post(':questId/next')
+  async nextTask(
+    @Req() req: RequestWithUser, 
+    @Param('questId') questId: string, 
+    @Body() body: { answer: string}
+  ) {
+    const startedQuest = generatorsMap.get(req.user.id);
+    if (!startedQuest) throw new NotFoundException('Quest not started');
+    if (body.answer) {
+      await startedQuest.next(body.answer);
+    }
   }
 
   @Post()
