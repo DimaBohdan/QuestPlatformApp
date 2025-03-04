@@ -1,5 +1,5 @@
 import { Injectable } from '@nestjs/common';
-import { Category, Quest } from '@prisma/client';
+import { Category, Quest, QuestTask } from '@prisma/client';
 import { PrismaService } from 'src/prisma/prisma.service';
 import { CreateQuestDto } from 'src/quest/dto/quest.create.dto';
 import { UpdateQuestDto } from 'src/quest/dto/quest.update.dto';
@@ -45,6 +45,7 @@ export class QuestRepository {
       orderBy: { createdAt: 'desc' },
     });
   }
+
   async findById(id: string): Promise<Quest | null> {
     return this.prisma.quest.findUnique({
       where: { id, },
