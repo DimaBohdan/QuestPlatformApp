@@ -1,4 +1,4 @@
-import { Injectable, NotFoundException } from '@nestjs/common';
+import { forwardRef, Inject, Injectable, NotFoundException } from '@nestjs/common';
 import { Quest, QuestTask } from '@prisma/client';
 import { MediaService } from 'src/media/media.service';
 import { QuestTaskRepository } from 'src/database/task.repository';
@@ -10,6 +10,7 @@ import { CreateQuestTaskDto } from './dto/create.quest-task.dto';
 export class QuestTaskService {
   constructor(
     private taskRepository: QuestTaskRepository,
+    @Inject(forwardRef(() => QuestService))
     private questService: QuestService,
     private mediaService: MediaService,
   ) {}

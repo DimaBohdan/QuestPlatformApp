@@ -1,4 +1,4 @@
-import { Controller, Get, Post, Put, Body, Param, Query, UseGuards, Delete, Request, Req, Patch, UploadedFile, NotFoundException } from '@nestjs/common';
+import { Controller, Get, Post, Put, Body, Param, Query, UseGuards, Delete, Request, Req, Patch, UploadedFile, NotFoundException, BadRequestException } from '@nestjs/common';
 import { CreateQuestDto } from './dto/quest.create.dto';
 import { JwtAuthGuard } from 'utils/guards/jwt.guard';
 import { Category, Quest, User} from '@prisma/client';
@@ -11,9 +11,9 @@ import { CaslForbiddenError } from 'utils/decorators/casl-forbidden-error.decora
 import { CaslForbiddenErrorI } from 'utils/permissions/casl-rules.factory';
 import { subject } from '@casl/ability';
 import { RequestWithUser } from 'utils/types/RequestWithUser';
-import { AnswerDto } from 'utils/interfaces/user.answer.dto';
 
-const generatorsMap = new Map<string, AsyncGenerator>();
+
+const generatorsMap = new Map<string, Map<string, AsyncGenerator>>();
 
 @Controller('quest')
 @UseGuards(JwtAuthGuard, RolesGuard)
@@ -51,9 +51,17 @@ export class QuestController {
     @Req() req: RequestWithUser, 
     @Param('questId') questId: string
   ) {
-    const startedQuest = this.questService.startQuest(req.user.id, questId);
-    generatorsMap.set(req.user.id, startedQuest);
-    
+    const userId = req.user.id;
+    if (!generatorsMap.has(userId)) {
+      generatorsMap.set(userId, new Map());
+    }
+    const userQuests = generatorsMap.get(userId)!;
+    if (userQuests.has(questId)) {
+      const startedQuest = userQuests.get(questId)!;
+      return (await startedQuest.next()).value;
+    }
+    const startedQuest = this.questService.startQuest(userId, questId);
+    userQuests.set(questId, startedQuest);
     return (await startedQuest.next()).value;
   }
 
@@ -63,20 +71,23 @@ export class QuestController {
     @Param('questId') questId: string, 
     @Body() body: { answer: string}
   ) {
-    const startedQuest = generatorsMap.get(req.user.id);
-    if (!startedQuest) throw new NotFoundException('Quest not started');
-    if (body.answer) {
-      await startedQuest.next(body.answer);
+    const userId = req.user.id;
+    if (!generatorsMap.has(userId)) {
+      generatorsMap.set(userId, new Map());
     }
+    const userQuests = generatorsMap.get(userId)!;
+    const startedQuest = userQuests.get(questId);
+    if (!startedQuest) throw new NotFoundException('Quest not started');
+    return (await startedQuest.next(body.answer)).value;
   }
 
   @Post()
   async createQuest(
     @Body() data: CreateQuestDto,
-    @UserRequest() user: User,
+    @Req() req: RequestWithUser,
     @UploadedFile() file?: Express.Multer.File,
   ): Promise<Quest>  {
-    return this.questService.createQuest(data, user.id, file);
+    return this.questService.createQuest(data, req.user.id, file);
   }
 
   @Patch(':id')

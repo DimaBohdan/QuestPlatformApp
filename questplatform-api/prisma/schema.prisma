@@ -88,19 +88,117 @@ model QuestTask {
   media   MediaFile?
   order   Int
   createdAt DateTime @default(now())
-  options Option[]     @relation("QuestionOptions")       //SINGLE_CHOICE, MULTIPLE_CHOICE
-  answers Option[]     @relation("QuestionAnswers")     //SINGLE_CHOICE, MULTIPLE_CHOICE
-  textAnswers String[]      // TEXT_FIELD
-  targetX    Float?         // FIND_ON_PICTURE, FIND_ON_MAP
-  targetY    Float?         // FIND_ON_PICTURE, FIND_ON_MAP
-  radius     Float?         // FIND_ON_PICTURE, FIND_ON_MAP
-  content    String?        // PLOT
-  choices    Json?          // PLOT
+
+  singleChoiceTask  SingleChoiceTask?
+  multipleChoiceTask MultipleChoiceTask?
+  textFieldTask    TextFieldTask?
+  findOnPictureTask FindOnPictureTask?
+  findOnMapTask    FindOnMapTask?
+  plotTask         PlotTask?
+
   userProgress UserQuestProgress[]
   userAnswers  UserAnswer[]
 
   @@unique([questId, order])
   @@map("quest_tasks")
+}
+
+model SingleChoiceTask {
+  id       String   @id @default(uuid()) @map("quest_task_id")
+  task     QuestTask @relation(fields: [id], references: [id], onDelete: Cascade)
+  options  Option[] @relation("SingleChoiceTask_Options")
+  correctOptionId String @unique
+  correctOption   Option @relation("SingleChoiceTask_CorrectOption", fields: [correctOptionId], references: [id], onDelete: Cascade)
+
+  @@map("single_choice_tasks")
+}
+
+model MultipleChoiceTask {
+  id       String   @id @default(uuid()) @map("quest_task_id")
+  task     QuestTask      @relation(fields: [id], references: [id], onDelete: Cascade)
+  options        Option[]  @relation("MultipleChoiceTask_Options")
+  correctOptions Option[] @relation(name: "MultipleChoiceTask_CorrectOptions")
+
+  @@map("multiple_choice_tasks")
+}
+
+model TextFieldTask {
+  id       String   @id @default(uuid()) @map("quest_task_id")
+  task     QuestTask @relation(fields: [id], references: [id], onDelete: Cascade)
+  correctText String[]
+
+  @@map("text_field_tasks")
+}
+
+model FindOnPictureTask {
+  id        String   @id @default(uuid()) @map("quest_task_id")
+  task      QuestTask @relation(fields: [id], references: [id], onDelete: Cascade, map: "find_on_picture_tasks_task_fkey")
+  imageId String  @unique
+  image   MediaFile @relation("FindOnPictureTaskImage", fields: [imageId], references: [id], onDelete: Cascade) 
+  correctCoordinate Coordinate @relation("FindOnPictureTaskCoordinate", fields: [correctCoordinateId], references: [id], map: "find_on_picture_tasks_coordinate_fkey")
+  correctCoordinateId String @unique
+
+  @@map("find_on_picture_tasks")
+}
+
+model FindOnMapTask {
+  id        String   @id @default(uuid()) @map("quest_task_id")
+  task      QuestTask @relation(fields: [id], references: [id], onDelete: Cascade)
+  points    Coordinate[] @relation("FindOnMapTaskPoints")
+  correctCoordinateId String        @unique
+  correctCoordinate   Coordinate    @relation("FindOnMapTaskCorrectCoordinate", fields: [correctCoordinateId], references: [id], onDelete: Cascade)
+
+  @@map("find_on_map_tasks")
+}
+
+model PlotTask {
+  id        String   @id @default(uuid()) @map("quest_task_id")
+  task      QuestTask @relation(fields: [id], references: [id], onDelete: Cascade)
+  startNodeId String  @unique
+  startNode   PlotNode @relation(name: "StartNode", fields: [startNodeId], references: [id], onDelete: Cascade)
+  nodes       PlotNode[] @relation("PlotTaskNodes")
+
+  @@map("plot_tasks")
+}
+
+model PlotNode {
+  id         String   @id @default(uuid())
+  taskId     String
+  task       PlotTask @relation(name: "PlotTaskNodes", fields: [taskId], references: [id], onDelete: Cascade)
+  text       String
+
+  choices    PlotChoice[] @relation("PlotNodeChoice")
+  plotNextChoice PlotChoice? @relation("PlotNextNodeChoices")
+  taskStartNode  PlotTask? @relation("StartNode")
+
+  @@map("plot_nodes")
+}
+
+model PlotChoice {
+  id         String   @id @default(uuid())
+  nodeId     String
+  node       PlotNode @relation("PlotNodeChoice", fields: [nodeId], references: [id], onDelete: Cascade)
+  text       String
+  nextNodeId String?  @unique
+  nextNode   PlotNode? @relation("PlotNextNodeChoices", fields: [nextNodeId], references: [id], onDelete: Cascade)
+  userAnswers  UserAnswer[]
+
+  @@map("plot_choices")
+}
+
+model Coordinate {
+  id        String   @id @default(uuid())
+  positionX Float
+  positionY Float
+  radius    Float @default(1)
+
+  userAnswer           UserAnswer[]        @relation("UserAnswerSelectedCoords")
+  findOnPictureTask    FindOnPictureTask?  @relation("FindOnPictureTaskCoordinate")
+  findOnMapTaskId String?
+  findOnMapTask   FindOnMapTask? @relation("FindOnMapTaskPoints", fields: [findOnMapTaskId], references: [id], onDelete: Cascade)
+  correctFindOnMapTask   FindOnMapTask?      @relation("FindOnMapTaskCorrectCoordinate")
+
+  @@map("coordinates")
 }
 
 enum QuestTaskType {
@@ -109,7 +207,8 @@ enum QuestTaskType {
   TEXT_FIELD
   FIND_ON_PICTURE
   FIND_ON_MAP
-  PLOT
+  CHESSBOARD
+  INTERACTIVE_PLOT
 }
 
 model UserQuestProgress {
@@ -139,7 +238,9 @@ model MediaFile {
   optionId  String?    @unique    
 
   quest     Quest? @relation(fields: [questId], references: [id])
-  questId   String?    @unique   
+  questId   String?    @unique
+
+  findOnPictureTask FindOnPictureTask? @relation("FindOnPictureTaskImage")
 
   createdAt DateTime @default(now())
 
@@ -156,20 +257,33 @@ model Option {
   text     String
   mediaId  String?
   media    MediaFile?
-  task     QuestTask @relation(name: "QuestionOptions", fields: [taskId], references: [id], onDelete: Cascade, map: "Option_TaskId_FKey")
-  taskId   String
   createdAt DateTime @default(now())
   isCorrect Boolean  @default(false)
-  answerTask QuestTask @relation(name: "QuestionAnswers", fields: [taskId], references: [id], onDelete: Cascade, map: "Option_AnswerTaskId_FKey")
+
+  singleChoiceTaskId   String?
+  singleChoiceTask     SingleChoiceTask? @relation("SingleChoiceTask_Options", fields: [singleChoiceTaskId], references: [id], onDelete: Cascade)
+  multipleChoiceTaskId   String?
+  multipleChoiceTask     MultipleChoiceTask? @relation("MultipleChoiceTask_Options", fields: [multipleChoiceTaskId], references: [id], onDelete: Cascade)
+  correctForSingleChoice SingleChoiceTask? @relation("SingleChoiceTask_CorrectOption")
+  correctForMultipleChoice MultipleChoiceTask[] @relation("MultipleChoiceTask_CorrectOptions")
+  userAnswers UserAnswer[]  @relation("UserAnswerOptions")
 }
 
 model UserAnswer {
   id         String   @id @default(uuid())
   userId     String
   taskId     String
-  task       QuestTask     @relation(fields: [taskId], references: [id])
-  answer     Json
-  createdAt  DateTime @default(now())
+  task       QuestTask @relation(fields: [taskId], references: [id], onDelete: Cascade)
+  createdAt DateTime @default(now())
+
+  selectedOptions Option[] @relation("UserAnswerOptions") // SINGLE/MULTIPLE CHOICE
+  textAnswer      String?  // TEXT_FIELD
+  selectedCoordsId String? 
+  selectedCoords  Coordinate? @relation("UserAnswerSelectedCoords", fields: [selectedCoordsId], references: [id], onDelete: SetNull)
+  plotChoiceId    String? 
+  plotChoice      PlotChoice? @relation(fields: [plotChoiceId], references: [id]) // PLOT_TASK
+
+  @@map("user_answers")
 }
 
 model QuestReview {

@@ -11,17 +11,17 @@ import { subject } from '@casl/ability';
 export class MediaController {
   constructor(private readonly mediaService: MediaService) {}
 
-  // @Post()
-  // @UseInterceptors(FileInterceptor('file'))
-  // async uploadImage(
-  //   @UploadedFile() file: Express.Multer.File,
-  //   @Body() data: CreateMediaRequest,
-  //   @Req() @CaslForbiddenError() forbiddenError: CaslForbiddenErrorI,
-  // ) {
+  @Post()
+  @UseInterceptors(FileInterceptor('file'))
+  async uploadImage(
+    @UploadedFile() file: Express.Multer.File,
+    @Body() data: CreateMediaRequest,
+    @Req() @CaslForbiddenError() forbiddenError: CaslForbiddenErrorI,
+  ) {
 
-  //   forbiddenError.throwUnlessCan('manage', subject('MediaFile', file));
-  //   return this.mediaService.uploadImage(file, data);
-  // }
+    // forbiddenError.throwUnlessCan('manage', subject('MediaFile', file));
+    return this.mediaService.uploadImage(file, data);
+  }
 
   @Delete()
   async deleteMediaByEntity(
