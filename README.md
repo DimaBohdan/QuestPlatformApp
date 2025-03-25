@@ -34,7 +34,7 @@ QuestCraft пропонує **візуальний редактор (drag-and-dr
 
 ### **1. Клонування репозиторію**
 ```sh
-git clone [https://github.com/yourusername/questcraft.git](https://github.com/DimaBohdan/QuestPlatformApp.git)
+git clone https://github.com/DimaBohdan/QuestPlatformApp.git
 cd questplatform-api
 ```
 
