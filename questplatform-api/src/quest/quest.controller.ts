@@ -12,9 +12,6 @@ import { CaslForbiddenErrorI } from 'utils/permissions/casl-rules.factory';
 import { subject } from '@casl/ability';
 import { RequestWithUser } from 'utils/types/RequestWithUser';
 
-
-const generatorsMap = new Map<string, Map<string, AsyncGenerator>>();
-
 @Controller('quest')
 @UseGuards(JwtAuthGuard, RolesGuard)
 export class QuestController {
@@ -51,34 +48,7 @@ export class QuestController {
     @Req() req: RequestWithUser, 
     @Param('questId') questId: string
   ) {
-    const userId = req.user.id;
-    if (!generatorsMap.has(userId)) {
-      generatorsMap.set(userId, new Map());
-    }
-    const userQuests = generatorsMap.get(userId)!;
-    if (userQuests.has(questId)) {
-      const startedQuest = userQuests.get(questId)!;
-      return (await startedQuest.next()).value;
-    }
-    const startedQuest = this.questService.startQuest(userId, questId);
-    userQuests.set(questId, startedQuest);
-    return (await startedQuest.next()).value;
-  }
-
-  @Post(':questId/next')
-  async nextTask(
-    @Req() req: RequestWithUser, 
-    @Param('questId') questId: string, 
-    @Body() body: { answer: string}
-  ) {
-    const userId = req.user.id;
-    if (!generatorsMap.has(userId)) {
-      generatorsMap.set(userId, new Map());
-    }
-    const userQuests = generatorsMap.get(userId)!;
-    const startedQuest = userQuests.get(questId);
-    if (!startedQuest) throw new NotFoundException('Quest not started');
-    return (await startedQuest.next(body.answer)).value;
+    return await this.questService.startQuest(req.user.id, questId);
   }
 
   @Post()

@@ -9,6 +9,7 @@ export class QuestTaskRepository {
   constructor(private readonly prisma: PrismaService) {}
 
   async findById(id: string): Promise<QuestTask | null> {
+    const task = await this.prisma.questTask.findUnique({ where: { id } });
     return this.prisma.questTask.findUnique({ where: { id } });
   }
 

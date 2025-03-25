@@ -18,10 +18,11 @@ import { UserQuestProgressModule } from './user-quest-progress/user-quest-progre
 import { UserAnswerModule } from './user-answer/user-answer.module';
 import { QuestTaskService } from './quest-task/quest-task.service';
 import { QuestTaskController } from './quest-task/quest-task.controller';
+import { OptionModule } from './option/option.module';
 
 
 @Module({
-  imports: [AuthModule, UserModule, PrismaModule, QuestModule, MediaModule, SingleChoiceTaskModule, QuestTaskModule, UserQuestProgressModule, UserAnswerModule],
+  imports: [AuthModule, UserModule, PrismaModule, QuestModule, MediaModule, SingleChoiceTaskModule, QuestTaskModule, UserQuestProgressModule, UserAnswerModule, OptionModule],
   controllers: [AuthController, UserController, QuestTaskController, UserQuestProgressController],
   providers: [{
     provide: APP_GUARD,

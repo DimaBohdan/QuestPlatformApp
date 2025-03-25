@@ -1,16 +1,17 @@
-import { Category } from '@prisma/client';
-import { IsArray, IsEmail, IsEnum, IsInt, IsNotEmpty, IsOptional, IsString } from 'class-validator';
+import { IsArray, IsEmail, IsEnum, IsInt, IsNotEmpty, IsOptional, IsString, IsUUID } from 'class-validator';
 
 export class CreateSingleChoiceTaskDto {
+  @IsNotEmpty()
+  @IsUUID()
+  questId: string;
+
   @IsNotEmpty()
   @IsString()
   question: string;
 
-  @IsNotEmpty()
   @IsArray()
   options: string[];
 
-  @IsNotEmpty()
   @IsString()
   answerIds: string;
 }

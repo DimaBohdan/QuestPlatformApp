@@ -87,6 +87,7 @@ model QuestTask {
   type    QuestTaskType
   media   MediaFile?
   order   Int
+  isFinalized     Boolean @default(false)
   createdAt DateTime @default(now())
 
   singleChoiceTask  SingleChoiceTask?
@@ -107,8 +108,8 @@ model SingleChoiceTask {
   id       String   @id @default(uuid()) @map("quest_task_id")
   task     QuestTask @relation(fields: [id], references: [id], onDelete: Cascade)
   options  Option[] @relation("SingleChoiceTask_Options")
-  correctOptionId String @unique
-  correctOption   Option @relation("SingleChoiceTask_CorrectOption", fields: [correctOptionId], references: [id], onDelete: Cascade)
+  correctOptionId String? @unique
+  correctOption   Option? @relation("SingleChoiceTask_CorrectOption", fields: [correctOptionId], references: [id], onDelete: Cascade)
 
   @@map("single_choice_tasks")
 }
