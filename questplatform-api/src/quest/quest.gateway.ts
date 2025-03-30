@@ -1,7 +1,9 @@
+import { ApiTags } from '@nestjs/swagger';
 import { WebSocketGateway, WebSocketServer, SubscribeMessage, MessageBody } from '@nestjs/websockets';
 import { Server } from 'socket.io';
 import { UserAnswerDTO } from 'src/user-answer/dto/answer.dto';
 
+@ApiTags('QuestGateway')
 @WebSocketGateway({ cors: true })
 export class QuestGateway {
   @WebSocketServer()

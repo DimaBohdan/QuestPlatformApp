@@ -48,7 +48,7 @@ export class QuestRepository {
 
   async findById(id: string): Promise<Quest | null> {
     return this.prisma.quest.findUnique({
-      where: { id, },
+      where: { id },
       include: {
         author: true,
         reviews: true,

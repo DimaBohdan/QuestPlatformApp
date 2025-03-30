@@ -6,7 +6,9 @@ import { Public } from 'utils/decorators/public.decorator';
 import { CaslForbiddenError } from 'utils/decorators/casl-forbidden-error.decorator';
 import { CaslForbiddenErrorI } from 'utils/permissions/casl-rules.factory';
 import { subject } from '@casl/ability';
+import { ApiTags } from '@nestjs/swagger';
 
+@ApiTags('Media')
 @Controller('media')
 export class MediaController {
   constructor(private readonly mediaService: MediaService) {}

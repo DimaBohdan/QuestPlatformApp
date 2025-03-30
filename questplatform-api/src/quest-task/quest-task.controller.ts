@@ -2,7 +2,9 @@ import { Body, Controller, Delete, Get, Param, Patch, Post, Put } from '@nestjs/
 import { Option, QuestTask } from '@prisma/client';
 import { QuestTaskService } from 'src/quest-task/quest-task.service';
 import { UpdateQuestTaskDto } from './dto/update.quest-task.dto';
+import { ApiTags } from '@nestjs/swagger';
 
+@ApiTags('Task')
 @Controller('quest-task')
 export class QuestTaskController {
   constructor(private readonly questTaskService: QuestTaskService) {}
