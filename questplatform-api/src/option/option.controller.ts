@@ -1,4 +1,4 @@
-import { Controller, Post, Get, Patch, Delete, Param, Body } from '@nestjs/common';
+import { Controller, Post, Get, Patch, Delete, Param, Body, UploadedFile } from '@nestjs/common';
 import { OptionService } from './option.service';
 import { CreateOptionDto} from './dto/create.option.dto';
 import { UpdateOptionDto } from './dto/update.option.dto';
@@ -8,8 +8,12 @@ export class OptionController {
   constructor(private readonly optionService: OptionService) {}
 
   @Post(':taskId')
-  createOption(@Param('taskId') taskId: string, @Body() dto: CreateOptionDto) {
-    return this.optionService.createOption(taskId, dto);
+  createOption(
+    @Param('taskId') taskId: string, 
+    @Body() dto: CreateOptionDto,
+    @UploadedFile() file?: Express.Multer.File,
+  ) {
+    return this.optionService.createOption(taskId, dto, file);
   }
 
   // @Get('task/:taskId')
@@ -23,8 +27,12 @@ export class OptionController {
   }
 
   @Patch(':id')
-  updateOption(@Param('id') id: string, @Body() dto: UpdateOptionDto) {
-    return this.optionService.updateOption(id, dto);
+  updateOption(
+    @Param('taskId') id: string, 
+    @Body() dto: CreateOptionDto,
+    @UploadedFile() file?: Express.Multer.File,
+  ) {
+    return this.optionService.updateOption(id, dto, file);
   }
 
   @Delete(':id')

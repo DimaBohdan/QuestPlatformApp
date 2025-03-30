@@ -1,26 +1,29 @@
-import { Injectable, NotFoundException } from "@nestjs/common";
+import { BadRequestException, Injectable, NotFoundException } from "@nestjs/common";
 import { Option } from "@prisma/client";
 import { CreateOptionDto } from "src/option/dto/create.option.dto";
 import { UpdateOptionDto } from "src/option/dto/update.option.dto";
 import { OptionRepository } from "src/database/option.repository";
 import { QuestTaskService } from "src/quest-task/quest-task.service";
+import { MediaService } from "src/media/media.service";
 
 @Injectable()
 export class OptionService {
   constructor(
     private readonly optionRepository: OptionRepository,
-    private readonly questTaskService: QuestTaskService) {}
+    private readonly questTaskService: QuestTaskService,
+    private readonly mediaService: MediaService,
+  ) {}
 
-  async createOption(id: string, dto: CreateOptionDto): Promise<Option> {
+  async createOption(id: string, dto: CreateOptionDto, file?: Express.Multer.File): Promise<Option> {
     const task = await this.questTaskService.findTaskById(id);
-    if (task.type == 'SINGLE_CHOICE') {
-      return this.optionRepository.createSingleOption(id, dto);
+    if (file) {
+      await this.mediaService.uploadImage(file, {'optionId': id})
     }
-    else if (task.type == 'MULTIPLE_CHOICE') {
-      return this.optionRepository.createMultipleOption(id, dto);
+    if (task.type == 'SINGLE_CHOICE' || task.type == 'MULTIPLE_CHOICE') {
+      return await this.optionRepository.createOption(id, dto);
     }
     else {
-      throw new NotFoundException('Type of task is not correct');
+      throw new BadRequestException('Task type doesn`t support options');
     }
   }
 
@@ -32,20 +35,19 @@ export class OptionService {
     return option;
   }
 
-  async getOptionByTaskId(id: string): Promise<Option[]> {
-    const task = await this.questTaskService.findTaskById(id);
-    if (task.type == 'SINGLE_CHOICE') {
-      return this.optionRepository.getOptionsBySingleTask(id);
-    }
-    else if (task.type == 'MULTIPLE_CHOICE') {
-      return this.optionRepository.getOptionsByMultipleTask(id);
-    }
-    else {
-      throw new NotFoundException('Type of task is not correct');
-    }
+  async getCorrectAnswers(taskId: string): Promise<Option[]> {
+    return await this.optionRepository.getCorrectAnswers(taskId);
   }
 
-  async updateOption(id: string, dto: UpdateOptionDto): Promise<Option> {
+  async getOptionsByTaskId(id: string): Promise<Option[]> {
+    await this.questTaskService.findTaskById(id);
+    return await this.optionRepository.getOptionsByTask(id);
+  }
+
+  async updateOption(id: string, dto: UpdateOptionDto, file?: Express.Multer.File): Promise<Option> {
+    if (file) {
+      await this.mediaService.uploadImage(file, {'optionId': id})
+    }
     return this.optionRepository.updateOption(id, dto);
   }
 
@@ -53,4 +55,3 @@ export class OptionService {
     return this.optionRepository.deleteOption(id);
   }
 }
-

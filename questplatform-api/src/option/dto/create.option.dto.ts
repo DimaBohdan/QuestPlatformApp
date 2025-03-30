@@ -4,10 +4,6 @@ export class CreateOptionDto {
     @IsString()
     text: string;
   
-    @IsOptional()
-    @IsString()
-    mediaId?: string;
-  
     @IsBoolean()
     isCorrect: boolean;
 }

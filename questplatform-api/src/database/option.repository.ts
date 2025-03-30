@@ -8,39 +8,28 @@ import { PrismaService } from "src/prisma/prisma.service";
 export class OptionRepository {
   constructor(private prisma: PrismaService) {}
 
-  async createSingleOption(id: string, dto: CreateOptionDto): Promise<Option> {
+  async createOption(id: string, dto: CreateOptionDto): Promise<Option> {
     return this.prisma.option.create({
       data: {
         text: dto.text,
-        mediaId: dto.mediaId,
         isCorrect: dto.isCorrect,
-        singleChoiceTaskId: id,
+        taskId: id,
       },
     });
   }
 
-  async createMultipleOption(id: string, dto: CreateOptionDto): Promise<Option> {
-    return this.prisma.option.create({
-      data: {
-        text: dto.text,
-        mediaId: dto.mediaId,
-        isCorrect: dto.isCorrect,
-        multipleChoiceTaskId: id,
-      },
-    });
-  }
-
-  async getOptionsBySingleTask(id: string): Promise<Option[]> {
-    return this.prisma.option.findMany({ where: { singleChoiceTaskId: id } });
-  }
-
-  async getOptionsByMultipleTask(id: string): Promise<Option[]> {
-    return this.prisma.option.findMany({ where: { multipleChoiceTaskId: id } });
+  async getOptionsByTask(id: string): Promise<Option[]> {
+    return this.prisma.option.findMany({ where: { taskId: id } });
   }
 
   async getOptionById(id: string): Promise<Option | null> {
     const option = await this.prisma.option.findUnique({ where: { id } });
     return option;
+  }
+
+  async getCorrectAnswers(taskId: string): Promise<Option[]> {
+    const correctAnswers = await this.prisma.option.findMany({ where: { taskId, isCorrect: true } });
+    return correctAnswers;
   }
 
   async updateOption(id: string, dto: UpdateOptionDto): Promise<Option> {
