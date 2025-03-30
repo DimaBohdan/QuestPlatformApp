@@ -17,6 +17,14 @@ export class QuestTaskController {
     return this.questTaskService.findTasksByQuest(questId);
   }
 
+  @Patch(':id')
+  async updateTask(
+    @Param() id: string,
+    @Body() data: UpdateQuestTaskDto,
+  ) {
+    return this.questTaskService.updateTask(id, { ...data});
+  }
+
   @Put(':id/order')
   async updateOrder(
     @Param('id') id: string,

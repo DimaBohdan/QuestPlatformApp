@@ -5,6 +5,7 @@ import { QuestTaskRepository } from 'src/database/task.repository';
 import { QuestService } from 'src/quest/quest.service';
 import { UpdateQuestTaskDto } from './dto/update.quest-task.dto';
 import { CreateQuestTaskDto } from './dto/create.quest-task.dto';
+import { CreateBaseQuestTaskDto } from './dto/create.base-quest-task.dto';
 
 @Injectable()
 export class QuestTaskService {
@@ -35,23 +36,27 @@ export class QuestTaskService {
     return task;
   }
 
-  async createTask(questId: string, data: CreateQuestTaskDto, file?: Express.Multer.File): Promise<QuestTask> {
+  async createTask(questId: string, data: CreateBaseQuestTaskDto, file?: Express.Multer.File): Promise<QuestTask> {
     const quest = await this.questService.findQuestById(questId);
     const taskOrder = quest.taskQuantity++;
     const task = await this.taskRepository.create(questId, taskOrder, data);
     if (file) {
-      const image = await this.mediaService.uploadImage(file, {'taskId': task.id})
+      await this.mediaService.uploadImage(file, {'taskId': task.id})
     }
-    const result = await this.taskRepository.findById(task.id);
+    const result = await this.findTaskById(task.id);
     if (!result) {
       throw new NotFoundException('Task not found');
     }
     return result;
   }
 
+  async saveTask(taskId: string): Promise<QuestTask> {
+    await this.findTaskById(taskId);
+    return await this.taskRepository.save(taskId);
+  }
+
   async updateTaskOrder(id: string, order: number): Promise<void> {
-    const task = await this.taskRepository.findById(id);
-    if (!task) throw new NotFoundException('Task not found');
+    const task = await this.findTaskById(id);
     const quest = await this.questService.findQuestById(task.questId)
     if (order < 1 || order > quest.taskQuantity) throw new NotFoundException('Invalid order provided');
     await this.taskRepository.updateTaskOrder(task, order);
@@ -59,9 +64,6 @@ export class QuestTaskService {
 
   async updateTask(id: string, data: UpdateQuestTaskDto, file?: Express.Multer.File): Promise<QuestTask> {
     const task = await this.findTaskById(id);
-    if (!task) {
-      throw new NotFoundException('Task not found');
-    }
     if (file) {
       await this.mediaService.uploadImage(file, {'taskId': task.id});
     }
@@ -69,10 +71,7 @@ export class QuestTaskService {
   }
 
   async deleteTask(id: string): Promise<QuestTask> {
-    const task = await this.taskRepository.findById(id);
-    if (!task) {
-      throw new NotFoundException('Task not found');
-    }
+    const task = await this.findTaskById(id);
     const quest = await this.questService.findQuestById(task.questId)
     return this.taskRepository.deleteById(id, quest.id);
   }

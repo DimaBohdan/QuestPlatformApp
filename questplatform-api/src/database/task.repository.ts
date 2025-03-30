@@ -3,6 +3,7 @@ import { PrismaService } from 'src/prisma/prisma.service';
 import { QuestTask } from '@prisma/client';
 import { CreateQuestTaskDto } from 'src/quest-task/dto/create.quest-task.dto';
 import { UpdateQuestTaskDto } from 'src/quest-task/dto/update.quest-task.dto';
+import { CreateBaseQuestTaskDto } from 'src/quest-task/dto/create.base-quest-task.dto';
 
 @Injectable()
 export class QuestTaskRepository {
@@ -33,7 +34,7 @@ export class QuestTaskRepository {
     })
   }
 
-  async create(questId: string, order: number, data: CreateQuestTaskDto): Promise<QuestTask> {
+  async create(questId: string, order: number, data: CreateBaseQuestTaskDto): Promise<QuestTask> {
     return this.prisma.$transaction(async (prisma) => {
       const task = await prisma.questTask.create({
         data: {
@@ -49,6 +50,13 @@ export class QuestTaskRepository {
         },
       });
       return task;
+    });
+  }
+
+  async save(taskId): Promise<QuestTask> {
+    return this.prisma.questTask.update({ 
+      where: { id: taskId },
+      data: { isFinalized: true },
     });
   }
 

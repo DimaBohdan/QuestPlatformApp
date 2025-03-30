@@ -8,6 +8,7 @@ import { QuestTaskService } from 'src/quest-task/quest-task.service';
 import { UserQuestProgressService } from 'src/user-quest-progress/user-quest-progress.service';
 import { UserAnswerService } from 'src/user-answer/user-answer.service';
 import { QuestGateway } from './quest.gateway';
+import { UserAnswerDTO } from 'src/user-answer/dto/answer.dto';
 
 
 @Injectable()
