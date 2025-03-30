@@ -1,4 +1,4 @@
-import { IsArray, IsEmail, IsEnum, IsInt, IsNotEmpty, IsOptional, IsString, IsUUID } from 'class-validator';
+import { IsArray, IsNotEmpty, IsOptional, IsString, IsUUID } from 'class-validator';
 
 export class CreateSingleChoiceTaskDto {
   @IsNotEmpty()
@@ -13,5 +13,5 @@ export class CreateSingleChoiceTaskDto {
   options: string[];
 
   @IsString()
-  answerIds: string;
+  correctAnswers: string[];
 }

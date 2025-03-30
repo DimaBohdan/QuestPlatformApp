@@ -1,16 +1,24 @@
-import { Injectable } from '@nestjs/common';
+import { BadRequestException, Injectable } from '@nestjs/common';
 import { CreateSingleChoiceTaskDto } from './dto/single-choice-task.create.dto';
 import { QuestTaskService } from 'src/quest-task/quest-task.service';
-import { SingleChoiceTask } from '@prisma/client';
+import { QuestTask } from '@prisma/client';
+import { OptionService } from 'src/option/option.service';
 
 @Injectable()
 export class SingleChoiceTaskService {
   constructor(
-    private taskRepository: QuestTaskRepository,
-    private taskService: QuestTaskService) {}
-  
-  async createTask(questId: string, data: CreateSingleChoiceTaskDto, file?: Express.Multer.File): Promise<Quest> {
-    await this.taskService.createTask(questId, { ...data, type: 'SINGLE_CHOICE' }, file);
-    
+    private taskService: QuestTaskService,
+    private optionService: OptionService,
+  ) {}
+
+  async saveTask(taskId: string): Promise<QuestTask> {
+    const options = await this.optionService.getOptionsByTaskId(taskId);
+    const answers = await this.optionService.getCorrectAnswers(taskId);
+    if (options.length >= 2 && answers.length == 1) {
+      return await this.taskService.saveTask(taskId);
+    }
+    else {
+      throw new BadRequestException('Invalid data for this type of task provided');
+    }
   }
 }
