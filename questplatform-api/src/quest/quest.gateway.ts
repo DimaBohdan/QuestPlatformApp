@@ -1,12 +1,13 @@
 import { WebSocketGateway, WebSocketServer, SubscribeMessage, MessageBody } from '@nestjs/websockets';
 import { Server } from 'socket.io';
+import { UserAnswerDTO } from 'src/user-answer/dto/answer.dto';
 
 @WebSocketGateway({ cors: true })
 export class QuestGateway {
   @WebSocketServer()
   server: Server;
 
-  private answerHandler: (userId: string, taskId: string, answer: string) => void = () => {};
+  private answerHandler: (userId: string, taskId: string, answer: UserAnswerDTO) => void = () => {};
 
   sendTask(userId: string, questId: string, task: any) {
     this.server.to(userId).emit('newTask', { questId, task });
@@ -17,11 +18,11 @@ export class QuestGateway {
   }
 
   @SubscribeMessage('submitAnswer')
-  handleAnswer(@MessageBody() data: { userId: string; taskId: string; answer: string }) {
+  handleAnswer(@MessageBody() data: { userId: string; taskId: string; answer: UserAnswerDTO }) {
     this.answerHandler(data.userId, data.taskId, data.answer);
   }
 
-  onAnswerReceived(callback: (userId: string, taskId: string, answer: string) => void) {
+  onAnswerReceived(callback: (userId: string, taskId: string, answer: UserAnswerDTO) => void) {
     this.answerHandler = callback;
   }
 }
