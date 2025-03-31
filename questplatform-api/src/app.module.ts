@@ -19,6 +19,7 @@ import { UserAnswerModule } from './user-answer/user-answer.module';
 import { QuestTaskService } from './quest-task/quest-task.service';
 import { QuestTaskController } from './quest-task/quest-task.controller';
 import { OptionModule } from './option/option.module';
+import { QuestGateway } from './quest/quest.gateway';
 
 
 @Module({
@@ -35,6 +36,7 @@ import { OptionModule } from './option/option.module';
   UserService,
   UserQuestProgressService,
   QuestTaskService,
+  QuestGateway,
 ],
 })
 export class AppModule {}

@@ -8,7 +8,7 @@ export class CreateQuestDto {
   @IsString()
   title: string;
 
-  @ApiProperty({ description: 'The title of the quest' })
+  @ApiProperty({ description: 'The description of the quest' })
   @IsOptional()
   @IsString()
   description?: string;

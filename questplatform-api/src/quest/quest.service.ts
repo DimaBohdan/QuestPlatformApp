@@ -44,14 +44,14 @@ export class QuestService {
 
   async startQuest(userId: string, questId: string) {
     let progress = await this.userQuestProgressService.findLastProgress(userId, questId);
-    const currentTaskId = progress.currentTaskId;
-    if (!currentTaskId) throw new NotFoundException('Task not found');
     if (!progress) {
       const firstTask = await this.questTaskService.findFirstTask(questId);
       if (!firstTask) throw new NotFoundException('No tasks found for this quest');
 
       progress = await this.userQuestProgressService.create(userId, firstTask.id);
     }
+    const currentTaskId = progress.currentTaskId;
+    if (!currentTaskId) throw new NotFoundException('Task not found');
     this.userTasks[userId] = currentTaskId;
 
     await this.processTask(userId, questId);

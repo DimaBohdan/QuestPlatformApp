@@ -11,11 +11,8 @@ export class UserQuestProgressService {
     private taskService: QuestTaskService,
   ) {}
 
-  async findLastProgress(userId: string, questId: string): Promise<UserQuestProgress> {
+  async findLastProgress(userId: string, questId: string): Promise<UserQuestProgress | null> {
     const progress = await this.progressRepository.findLastProgress(userId, questId);
-    if (!progress) {
-        throw new NotFoundException('Progress not found');
-    }
     return progress;
   }
 

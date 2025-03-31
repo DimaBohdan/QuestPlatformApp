@@ -1,15 +1,19 @@
+import { ApiProperty } from "@nestjs/swagger";
 import { IsBoolean, IsOptional, IsString } from "class-validator";
 
 export class UpdateOptionDto {
-    @IsOptional()
-    @IsString()
-    text?: string;
+  @ApiProperty({ description: 'The text of the option' })
+  @IsOptional()
+  @IsString()
+  text?: string;
   
-    @IsOptional()
-    @IsString()
-    mediaId?: string;
+  @ApiProperty({ description: 'The mediaId of the option' })
+  @IsOptional()
+  @IsString()
+  mediaId?: string;
   
-    @IsOptional()
-    @IsBoolean()
-    isCorrect?: boolean;
+  @ApiProperty({ description: 'Is option correct?' })
+  @IsOptional()
+  @IsBoolean()
+  isCorrect?: boolean;
 }
