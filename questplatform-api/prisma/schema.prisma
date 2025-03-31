@@ -28,7 +28,8 @@ model User {
   achievements    Achievement[]
   reviews         QuestReview[]
   sentFriendRequests  Friendship[]    @relation("UserRequesterFriendships") 
-  receivedFriendRequestd Friendship[] @relation("UserReceiverFriendships")
+  receivedFriendRequests Friendship[] @relation("UserReceiverFriendships")
+  questProgress UserQuestProgress[]
 }
 
 model Friendship {
@@ -62,6 +63,7 @@ model Quest {
   themeId     String?
   theme       QuestTheme? @relation(fields: [themeId], references: [id])
   createdAt   DateTime    @default(now())
+  questProgress UserQuestProgress[]
 }
 
 enum UserRole {
@@ -85,18 +87,61 @@ model QuestTask {
   question String
   type    QuestTaskType
   media   MediaFile?
+  order   Int
+  isFinalized     Boolean @default(false)
   createdAt DateTime @default(now())
-  options Option[]          //SINGLE_CHOICE, MULTIPLE_CHOICE
-  answerIds String[]        //SINGLE_CHOICE, MULTIPLE_CHOICE
+  options        Option[] @relation("QuestTaskOptions")   // SINGLE_CHOICE, MULTIPLE_CHOICE
+  correctAnswers Option[] @relation("QuestTaskCorrectAnswers")  // SINGLE_CHOICE, MULTIPLE_CHOICE
 
-  textAnswer String?        // TEXT_FIELD
-  targetX    Float?         // FIND_ON_PICTURE, FIND_ON_MAP
-  targetY    Float?         // FIND_ON_PICTURE, FIND_ON_MAP
-  radius     Float?         // FIND_ON_PICTURE, FIND_ON_MAP
-  content    String?        // PLOT
-  choices    Json?          // PLOT
+  textAnswer     String[]    
+  coordinate     Coordinate? @relation(name: "FindOnTaskPoints") // FIND_ON_MAP AND FIND_ON_PICTURE
+  startNodeId    String?     
+  startNode      PlotNode?   @relation(name: "StartNodeRelation")
+  nodes          PlotNode[]  @relation(name: "NodesRelation")
 
+  userAnswers    UserAnswer[] @relation("UserTaskAnswers")
+  currentTaskUsers UserQuestProgress[] @relation("CurrentTaskProgress")
+
+  @@unique([questId, order])
   @@map("quest_tasks")
+}
+
+model PlotNode {
+  id         String   @id @default(uuid())
+  taskId     String
+  task        QuestTask? @relation(name: "NodesRelation", fields: [taskId], references: [id])
+  text       String
+
+  choices    PlotChoice[] @relation("PlotNodeChoice")
+  plotNextChoice PlotChoice? @relation("PlotNextNodeChoices")
+  taskStartId String?      @unique
+  taskStartNode QuestTask? @relation(name: "StartNodeRelation", fields: [taskStartId], references: [id]) 
+
+  @@map("plot_nodes")
+}
+
+model PlotChoice {
+  id         String   @id @default(uuid())
+  nodeId     String
+  node       PlotNode @relation("PlotNodeChoice", fields: [nodeId], references: [id], onDelete: Cascade)
+  text       String
+  nextNodeId String?  @unique
+  nextNode   PlotNode? @relation("PlotNextNodeChoices", fields: [nextNodeId], references: [id], onDelete: Cascade)
+  userAnswers  UserAnswer[]
+
+  @@map("plot_choices")
+}
+
+model Coordinate {
+  id        String   @id @default(uuid())
+  positionX Float
+  positionY Float
+  radius    Float @default(1)
+  userAnswer           UserAnswer[]        @relation("UserAnswerSelectedCoords")
+  findOnTaskId String? @unique
+  findOnTask   QuestTask? @relation("FindOnTaskPoints", fields: [findOnTaskId], references: [id], onDelete: Cascade)
+
+  @@map("coordinates")
 }
 
 enum QuestTaskType {
@@ -105,7 +150,20 @@ enum QuestTaskType {
   TEXT_FIELD
   FIND_ON_PICTURE
   FIND_ON_MAP
-  PLOT
+  CHESSBOARD
+  INTERACTIVE_PLOT
+}
+
+model UserQuestProgress {
+  id         String   @id @default(uuid())
+  userId     String
+  user           User   @relation(fields: [userId], references: [id])
+  questId    String
+  quest      Quest    @relation(fields: [questId], references: [id])
+  currentTaskId String?
+  currentTask  QuestTask?   @relation(name: "CurrentTaskProgress", fields: [currentTaskId], references: [id])
+  startTime   DateTime @default(now()) 
+  completed   Boolean @default(false)
 }
 
 model MediaFile {
@@ -124,7 +182,7 @@ model MediaFile {
   optionId  String?    @unique    
 
   quest     Quest? @relation(fields: [questId], references: [id])
-  questId   String?    @unique   
+  questId   String?    @unique
 
   createdAt DateTime @default(now())
 
@@ -136,16 +194,46 @@ enum MediaFileType {
   VIDEO
 }
 
+model UserAnswerOption {
+  userAnswerId String
+  userAnswer   UserAnswer @relation(fields: [userAnswerId], references: [id], onDelete: Cascade)
+
+  optionId String
+  option   Option @relation(fields: [optionId], references: [id], onDelete: Cascade)
+
+  @@id([userAnswerId, optionId])
+  @@map("user_answer_options") 
+}
+
 model Option {
   id       String       @id @default(uuid())
   text     String
   mediaId  String?
   media    MediaFile?
-  task     QuestTask @relation(fields: [taskId], references: [id])
-  taskId   String
   createdAt DateTime @default(now())
   isCorrect Boolean  @default(false)
+  taskId     String
+  task      QuestTask @relation("QuestTaskOptions", fields: [taskId], references: [id])
 
+  userAnswers UserAnswerOption[]
+  questTaskCorrectAnswers QuestTask[] @relation("QuestTaskCorrectAnswers")
+}
+
+model UserAnswer {
+  id         String   @id @default(uuid())
+  userId     String
+  taskId     String
+  task       QuestTask @relation(name: "UserTaskAnswers", fields: [taskId], references: [id], onDelete: Cascade)
+  createdAt DateTime @default(now())
+
+  selectedOptions UserAnswerOption[] // SINGLE/MULTIPLE CHOICE
+  textAnswer      String?  // TEXT_FIELD
+  selectedCoordsId String? 
+  selectedCoords  Coordinate? @relation("UserAnswerSelectedCoords", fields: [selectedCoordsId], references: [id], onDelete: SetNull)
+  plotChoiceId    String? 
+  plotChoice      PlotChoice? @relation(fields: [plotChoiceId], references: [id]) // PLOT_TASK
+
+  @@map("user_answers")
 }
 
 model QuestReview {

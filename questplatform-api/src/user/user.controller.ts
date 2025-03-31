@@ -8,8 +8,9 @@ import { UpdateUserDto } from './dto/user.update.dto';
 import { AppAbility, CaslForbiddenErrorI } from 'utils/permissions/casl-rules.factory';
 import { CaslForbiddenError } from 'utils/decorators/casl-forbidden-error.decorator';
 import { subject } from '@casl/ability';
+import { ApiTags } from '@nestjs/swagger';
 
-
+@ApiTags('User')
 @Controller('user')
 @UseGuards(JwtAuthGuard, RolesGuard)
 export class UserController {

@@ -6,22 +6,24 @@ import { Public } from 'utils/decorators/public.decorator';
 import { CaslForbiddenError } from 'utils/decorators/casl-forbidden-error.decorator';
 import { CaslForbiddenErrorI } from 'utils/permissions/casl-rules.factory';
 import { subject } from '@casl/ability';
+import { ApiTags } from '@nestjs/swagger';
 
+@ApiTags('Media')
 @Controller('media')
 export class MediaController {
   constructor(private readonly mediaService: MediaService) {}
 
-  // @Post()
-  // @UseInterceptors(FileInterceptor('file'))
-  // async uploadImage(
-  //   @UploadedFile() file: Express.Multer.File,
-  //   @Body() data: CreateMediaRequest,
-  //   @Req() @CaslForbiddenError() forbiddenError: CaslForbiddenErrorI,
-  // ) {
+  @Post()
+  @UseInterceptors(FileInterceptor('file'))
+  async uploadImage(
+    @UploadedFile() file: Express.Multer.File,
+    @Body() data: CreateMediaRequest,
+    @Req() @CaslForbiddenError() forbiddenError: CaslForbiddenErrorI,
+  ) {
 
-  //   forbiddenError.throwUnlessCan('manage', subject('MediaFile', file));
-  //   return this.mediaService.uploadImage(file, data);
-  // }
+    // forbiddenError.throwUnlessCan('manage', subject('MediaFile', file));
+    return this.mediaService.uploadImage(file, data);
+  }
 
   @Delete()
   async deleteMediaByEntity(

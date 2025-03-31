@@ -10,11 +10,20 @@ import { AuthController } from './auth/auth.controller';
 import { PrismaModule } from './prisma/prisma.module';
 import { QuestModule } from './quest/quest.module';
 import { MediaModule } from './media/media.module';
+import { SingleChoiceTaskModule } from './single-choice-task/single-choice-task.module';
+import { QuestTaskModule } from './quest-task/quest-task.module';
+import { UserQuestProgressService } from './user-quest-progress/user-quest-progress.service';
+import { UserQuestProgressController } from './user-quest-progress/user-quest-progress.controller';
+import { UserQuestProgressModule } from './user-quest-progress/user-quest-progress.module';
+import { UserAnswerModule } from './user-answer/user-answer.module';
+import { QuestTaskService } from './quest-task/quest-task.service';
+import { QuestTaskController } from './quest-task/quest-task.controller';
+import { OptionModule } from './option/option.module';
 
 
 @Module({
-  imports: [AuthModule, UserModule, PrismaModule, QuestModule, MediaModule],
-  controllers: [AuthController, UserController],
+  imports: [AuthModule, UserModule, PrismaModule, QuestModule, MediaModule, SingleChoiceTaskModule, QuestTaskModule, UserQuestProgressModule, UserAnswerModule, OptionModule],
+  controllers: [AuthController, UserController, QuestTaskController, UserQuestProgressController],
   providers: [{
     provide: APP_GUARD,
     useClass: JwtAuthGuard,
@@ -23,6 +32,9 @@ import { MediaModule } from './media/media.module';
     provide: APP_GUARD,
     useClass: RolesGuard,
   },
-  UserService],
+  UserService,
+  UserQuestProgressService,
+  QuestTaskService,
+],
 })
 export class AppModule {}

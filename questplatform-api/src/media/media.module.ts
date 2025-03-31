@@ -16,6 +16,6 @@ import { memoryStorage } from 'multer';
   ],
   controllers: [MediaController],
   providers: [MediaService, MediaRepository, CloudinaryProvider, PrismaService],
-  exports: [MediaService],
+  exports: [MediaService, MediaRepository, CloudinaryProvider],
 })
 export class MediaModule {}
