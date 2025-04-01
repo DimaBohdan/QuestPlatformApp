@@ -9,6 +9,8 @@ import { UserQuestProgressService } from 'src/user-quest-progress/user-quest-pro
 import { UserAnswerService } from 'src/user-answer/user-answer.service';
 import { QuestGateway } from './quest.gateway';
 import { UserAnswerDTO } from 'src/user-answer/dto/answer.dto';
+import { QuestSortField } from './enums/QuestSortField.enum';
+import { QuestSortOrder } from './enums/QuestSortOrder.enum';
 
 
 @Injectable()
@@ -26,8 +28,17 @@ export class QuestService {
     private questGateway: QuestGateway,
   ) {}
 
-  async getAllPublicQuests(filter?: { title?: string; category?: Category; difficulty?: number }): Promise<Quest[]> {
-    return this.questRepository.findAllPublic(filter);
+  async getAllPublicQuests(
+    filter?: { title?: string; category?: Category; difficulty?: number },
+    sort?: { sortBy?: QuestSortField, sortOrder?: QuestSortOrder }
+  ): Promise<Quest[]> {
+    return this.questRepository.findAllPublic(filter, sort);
+  }
+
+  async getAllReadyQuests(filter?: { title?: string; category?: Category; difficulty?: number },
+    sort?: { sortBy?: QuestSortField, sortOrder?: QuestSortOrder }
+  ): Promise<Quest[]> {
+    return this.questRepository.findAllReady(filter, sort);
   }
 
   async getMyQuests(userId: string, filter?: { title?: string; category?: Category; difficulty?: number }): Promise<Quest[]> {

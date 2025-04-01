@@ -20,10 +20,11 @@ import { QuestTaskService } from './quest-task/quest-task.service';
 import { QuestTaskController } from './quest-task/quest-task.controller';
 import { OptionModule } from './option/option.module';
 import { QuestGateway } from './quest/quest.gateway';
+import { QuestViewModule } from './quest-view/quest-view.module';
 
 
 @Module({
-  imports: [AuthModule, UserModule, PrismaModule, QuestModule, MediaModule, SingleChoiceTaskModule, QuestTaskModule, UserQuestProgressModule, UserAnswerModule, OptionModule],
+  imports: [AuthModule, UserModule, PrismaModule, QuestModule, MediaModule, SingleChoiceTaskModule, QuestTaskModule, UserQuestProgressModule, UserAnswerModule, OptionModule, QuestViewModule],
   controllers: [AuthController, UserController, QuestTaskController, UserQuestProgressController],
   providers: [{
     provide: APP_GUARD,

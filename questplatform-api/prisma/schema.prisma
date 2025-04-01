@@ -30,6 +30,7 @@ model User {
   sentFriendRequests  Friendship[]    @relation("UserRequesterFriendships") 
   receivedFriendRequests Friendship[] @relation("UserReceiverFriendships")
   questProgress UserQuestProgress[]
+  questViews    QuestView[]
 }
 
 model Friendship {
@@ -61,14 +62,30 @@ model Quest {
   previewImage MediaFile?
   reviews     QuestReview[]
   themeId     String?
-  theme       QuestTheme? @relation(fields: [themeId], references: [id])
+  theme       QuestTheme? @relation(fields: [themeId], references: [id], onDelete: Cascade)
   createdAt   DateTime    @default(now())
+  questViews  QuestView[]
   questProgress UserQuestProgress[]
+  viewsCount  Int @default(0)
+  playCount   Int @default(0)
 }
 
 enum UserRole {
   USER
   ADMIN
+}
+
+model QuestView {
+  id        String   @id @default(uuid())
+  questId   String  
+  userId    String?
+  guestSessionId String?
+  viewedAt  DateTime @default(now())
+  quest     Quest    @relation(fields: [questId], references: [id], onDelete: Cascade)
+  user      User?    @relation(fields: [userId], references: [id], onDelete: SetNull)
+
+  @@unique([guestSessionId, questId])
+  @@unique([userId, questId])
 }
 
 model UserCompletedQuest {
@@ -109,13 +126,13 @@ model QuestTask {
 model PlotNode {
   id         String   @id @default(uuid())
   taskId     String
-  task        QuestTask? @relation(name: "NodesRelation", fields: [taskId], references: [id])
+  task        QuestTask? @relation(name: "NodesRelation", fields: [taskId], references: [id], onDelete: Cascade)
   text       String
 
   choices    PlotChoice[] @relation("PlotNodeChoice")
   plotNextChoice PlotChoice? @relation("PlotNextNodeChoices")
   taskStartId String?      @unique
-  taskStartNode QuestTask? @relation(name: "StartNodeRelation", fields: [taskStartId], references: [id]) 
+  taskStartNode QuestTask? @relation(name: "StartNodeRelation", fields: [taskStartId], references: [id], onDelete: Cascade) 
 
   @@map("plot_nodes")
 }
@@ -157,11 +174,11 @@ enum QuestTaskType {
 model UserQuestProgress {
   id         String   @id @default(uuid())
   userId     String
-  user           User   @relation(fields: [userId], references: [id])
+  user           User   @relation(fields: [userId], references: [id], onDelete: Cascade)
   questId    String
-  quest      Quest    @relation(fields: [questId], references: [id])
+  quest      Quest    @relation(fields: [questId], references: [id], onDelete: Cascade)
   currentTaskId String?
-  currentTask  QuestTask?   @relation(name: "CurrentTaskProgress", fields: [currentTaskId], references: [id])
+  currentTask  QuestTask?   @relation(name: "CurrentTaskProgress", fields: [currentTaskId], references: [id], onDelete: Cascade)
   startTime   DateTime @default(now()) 
   completed   Boolean @default(false)
 }
@@ -175,13 +192,13 @@ model MediaFile {
   height    Int?   // IMAGES
   duration  Float? // VIDEOS
 
-  task      QuestTask? @relation(fields: [taskId], references: [id])
+  task      QuestTask? @relation(fields: [taskId], references: [id], onDelete: Cascade)
   taskId    String?    @unique
 
-  option    Option?    @relation(fields: [optionId], references: [id])
+  option    Option?    @relation(fields: [optionId], references: [id], onDelete: Cascade)
   optionId  String?    @unique    
 
-  quest     Quest? @relation(fields: [questId], references: [id])
+  quest     Quest? @relation(fields: [questId], references: [id], onDelete: Cascade)
   questId   String?    @unique
 
   createdAt DateTime @default(now())
@@ -213,7 +230,7 @@ model Option {
   createdAt DateTime @default(now())
   isCorrect Boolean  @default(false)
   taskId     String
-  task      QuestTask @relation("QuestTaskOptions", fields: [taskId], references: [id])
+  task      QuestTask @relation("QuestTaskOptions", fields: [taskId], references: [id], onDelete: Cascade)
 
   userAnswers UserAnswerOption[]
   questTaskCorrectAnswers QuestTask[] @relation("QuestTaskCorrectAnswers")

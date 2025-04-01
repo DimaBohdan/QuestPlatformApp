@@ -37,13 +37,21 @@ export class UserQuestProgressRepository {
   }
 
   async completeProgress(userId: string, questId: string): Promise<UserQuestProgress[]> {
-    await this.prisma.userQuestProgress.updateMany({
-      where: { userId, questId },
-      data: { completed: true },
-    });
-
-    return await this.prisma.userQuestProgress.findMany({
+    const result = await this.prisma.$transaction([
+      this.prisma.userQuestProgress.updateMany({
+        where: { userId, questId },
+        data: { completed: true },
+      }),
+  
+      this.prisma.quest.update({
+        where: { id: questId },
+        data: { playCount: { increment: 1 } },
+      }),
+    ]);
+  
+    return this.prisma.userQuestProgress.findMany({
       where: { userId, questId },
     });
   }
+  
 }

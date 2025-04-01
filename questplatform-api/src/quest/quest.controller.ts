@@ -12,6 +12,8 @@ import { CaslForbiddenErrorI } from 'utils/permissions/casl-rules.factory';
 import { subject } from '@casl/ability';
 import { RequestWithUser } from 'utils/types/RequestWithUser';
 import { ApiBody, ApiOperation, ApiParam, ApiQuery, ApiTags } from '@nestjs/swagger';
+import { QuestSortField } from './enums/QuestSortField.enum';
+import { QuestSortOrder } from './enums/QuestSortOrder.enum';
 
 @ApiTags('Quest')
 @Controller('quest')
@@ -25,16 +27,38 @@ export class QuestController {
   @ApiQuery({ name: 'title', required: false, description: 'Filter by quest title' })
   @ApiQuery({ name: 'category', required: false, description: 'Filter by quest category' })
   @ApiQuery({ name: 'difficulty', required: false, description: 'Filter by quest difficulty', type: Number })
+  @ApiQuery({ name: 'sortBy', required: false, enum: QuestSortField, description: 'Sort by parameters' })
+  @ApiQuery({ name: 'sortOrder', required: false, enum: QuestSortOrder, description: 'Choose sortOrder' })
   async getPublicQuests(
     @Query('title') title?: string,
     @Query('category') category?: Category,
     @Query('difficulty') difficulty?: number,
+    @Query('sortBy') sortBy?: QuestSortField,
+    @Query('sortOrder') sortOrder?: QuestSortOrder,
   ): Promise<Quest[]> {
-    return this.questService.getAllPublicQuests({ title, category, difficulty });
+    return this.questService.getAllPublicQuests({ title, category, difficulty }, { sortBy, sortOrder });
+  }
+
+  @Public()
+  @Get('ready')
+  @ApiOperation({ summary: 'Get all ready quests' })
+  @ApiQuery({ name: 'title', required: false, description: 'Filter by quest title' })
+  @ApiQuery({ name: 'category', required: false, description: 'Filter by quest category' })
+  @ApiQuery({ name: 'difficulty', required: false, description: 'Filter by quest difficulty', type: Number })
+  @ApiQuery({ name: 'sortBy', required: false, enum: QuestSortField, description: 'Sort by parameters' })
+  @ApiQuery({ name: 'sortOrder', required: false, enum: QuestSortOrder, description: 'Choose sortOrder' })
+  async getReadyQuests(
+    @Query('title') title?: string,
+    @Query('category') category?: Category,
+    @Query('difficulty') difficulty?: number,
+    @Query('sortBy') sortBy?: QuestSortField,
+    @Query('sortOrder') sortOrder?: QuestSortOrder,
+  ): Promise<Quest[]> {
+    return this.questService.getAllReadyQuests({ title, category, difficulty }, { sortBy, sortOrder });
   }
 
   @Get('/my')
-  @ApiOperation({ summary: 'Get quest created by user' })
+  @ApiOperation({ summary: 'Get quests created by user' })
   @ApiQuery({ name: 'title', required: false, description: 'Filter by quest title' })
   @ApiQuery({ name: 'category', required: false, description: 'Filter by quest category' })
   @ApiQuery({ name: 'difficulty', required: false, description: 'Filter by quest difficulty', type: Number })

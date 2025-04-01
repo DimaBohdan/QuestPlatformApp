@@ -1,0 +1,3 @@
+-- AlterTable
+ALTER TABLE "Quest" ADD COLUMN     "playCount" INTEGER NOT NULL DEFAULT 0,
+ADD COLUMN     "viewsCount" INTEGER NOT NULL DEFAULT 0;
