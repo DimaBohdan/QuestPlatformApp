@@ -16,7 +16,7 @@ export class QuestTaskRepository {
 
   async findFirstTask(questId: string, minTaskOrder: number): Promise<QuestTask | null> {
     return this.prisma.questTask.findFirst({
-      where: { questId, order: { gt: minTaskOrder } },
+      where: { questId, order: { gte: minTaskOrder } },
       orderBy: { order: 'asc' },
     });
   }

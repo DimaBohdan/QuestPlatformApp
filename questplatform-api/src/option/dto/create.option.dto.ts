@@ -1,9 +1,12 @@
+import { ApiProperty } from "@nestjs/swagger";
 import { IsBoolean, IsOptional, IsString, IsUUID } from "class-validator";
 
 export class CreateOptionDto {
-    @IsString()
-    text: string;
+  @ApiProperty({ description: 'The text of the option' })
+  @IsString()
+  text: string;
   
-    @IsBoolean()
-    isCorrect: boolean;
+  @ApiProperty({ description: 'Is option correct' })
+  @IsBoolean()
+  isCorrect: boolean;
 }

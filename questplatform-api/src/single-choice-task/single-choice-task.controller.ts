@@ -28,7 +28,7 @@ export class SingleChoiceTaskController implements IQuestTask {
     return this.taskService.createTask(questId, { ...question, type:'SINGLE_CHOICE', }, file);
   }
 
-  @Post('save/:taskId')
+  @Patch('save/:taskId')
   @ApiOperation({ summary: 'Save new single choice task' })
   @ApiParam({ name: 'taskId', description: 'Task ID' })
   async saveTask(
