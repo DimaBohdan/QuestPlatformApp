@@ -43,6 +43,10 @@ export class OptionRepository {
     });
   }
 
+  async clearOptions(taskId: string): Promise<void> {
+    await this.prisma.option.deleteMany({ where: { taskId } });
+  }
+
   async deleteOption(id: string): Promise<Option> {
     return this.prisma.option.delete({ where: { id } });
   }

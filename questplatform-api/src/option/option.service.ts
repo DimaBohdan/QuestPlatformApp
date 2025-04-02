@@ -1,4 +1,4 @@
-import { BadRequestException, Injectable, NotFoundException } from "@nestjs/common";
+import { BadRequestException, forwardRef, Inject, Injectable, NotFoundException } from "@nestjs/common";
 import { Option } from "@prisma/client";
 import { CreateOptionDto } from "src/option/dto/create.option.dto";
 import { UpdateOptionDto } from "src/option/dto/update.option.dto";
@@ -10,6 +10,7 @@ import { MediaService } from "src/media/media.service";
 export class OptionService {
   constructor(
     private readonly optionRepository: OptionRepository,
+    @Inject(forwardRef(() => QuestTaskService)) 
     private readonly questTaskService: QuestTaskService,
     private readonly mediaService: MediaService,
   ) {}
@@ -49,6 +50,10 @@ export class OptionService {
       await this.mediaService.uploadImage(file, {'optionId': id})
     }
     return this.optionRepository.updateOption(id, dto);
+  }
+
+  async clearOptions(taskId: string): Promise<void> {
+    return this.optionRepository.clearOptions(taskId);
   }
 
   async deleteOption(id: string): Promise<Option> {

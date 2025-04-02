@@ -1,19 +1,22 @@
 import { forwardRef, Inject, Injectable, NotFoundException } from '@nestjs/common';
-import { Quest, QuestTask } from '@prisma/client';
+import { Quest, QuestTask, QuestTaskType } from '@prisma/client';
 import { MediaService } from 'src/media/media.service';
 import { QuestTaskRepository } from 'src/database/task.repository';
 import { QuestService } from 'src/quest/quest.service';
 import { UpdateQuestTaskDto } from './dto/update.quest-task.dto';
 import { CreateQuestTaskDto } from './dto/create.quest-task.dto';
 import { CreateBaseQuestTaskDto } from './dto/create.base-quest-task.dto';
+import { TaskCleanerFactory } from './task-cleaner/task-cleaner.factory';
 
 @Injectable()
 export class QuestTaskService {
+  optionService: any;
   constructor(
     private taskRepository: QuestTaskRepository,
     @Inject(forwardRef(() => QuestService))
     private questService: QuestService,
     private mediaService: MediaService,
+    private taskCleanerFactory: TaskCleanerFactory
   ) {}
 
   async findTaskById(id: string): Promise<QuestTask> {
@@ -67,7 +70,15 @@ export class QuestTaskService {
     if (file) {
       await this.mediaService.uploadImage(file, {'taskId': task.id});
     }
+    if (data.type && data.type !== task.type) {
+      await this.clearIncompatibleData(id, task.type);
+    }
     return this.taskRepository.update(id, data);
+  }
+
+  private async clearIncompatibleData(taskId: string, oldType: QuestTaskType): Promise<void> {
+    const cleaner = this.taskCleanerFactory.getCleaner(oldType);
+    await cleaner.clear(taskId);
   }
 
   async deleteTask(id: string): Promise<QuestTask> {
