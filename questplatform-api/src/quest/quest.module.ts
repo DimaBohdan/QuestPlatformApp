@@ -9,11 +9,12 @@ import { MediaModule } from 'src/media/media.module';
 import { QuestTaskModule } from 'src/quest-task/quest-task.module';
 import { UserQuestProgressModule } from 'src/user-quest-progress/user-quest-progress.module';
 import { UserAnswerModule } from 'src/user-answer/user-answer.module';
+import { QuestGateway } from './quest.gateway';
 
 @Module({
   imports: [PrismaModule, AuthModule, MediaModule, forwardRef(() => QuestTaskModule), UserQuestProgressModule, UserAnswerModule],
   controllers: [QuestController],
-  providers: [QuestService, QuestRepository, JwtAuthGuard],
-  exports: [QuestService, QuestRepository],
+  providers: [QuestService, QuestRepository, JwtAuthGuard, QuestGateway],
+  exports: [QuestService, QuestRepository, QuestGateway],
 })
 export class QuestModule {}

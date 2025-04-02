@@ -53,7 +53,7 @@ export class QuestTaskRepository {
     });
   }
 
-  async save(taskId): Promise<QuestTask> {
+  async save(taskId: string): Promise<QuestTask> {
     return this.prisma.questTask.update({ 
       where: { id: taskId },
       data: { isFinalized: true },

@@ -21,10 +21,15 @@ import { QuestTaskController } from './quest-task/quest-task.controller';
 import { OptionModule } from './option/option.module';
 import { QuestGateway } from './quest/quest.gateway';
 import { QuestViewModule } from './quest-view/quest-view.module';
+import { MultipleChoiceTaskModule } from './multiple-choice-task/multiple-choice-task.module';
+import { OptionService } from './option/option.service';
+import { TaskCleanerFactory } from './quest-task/task-cleaner/task-cleaner.factory';
+import { ChoiceCleaner } from 'utils/task-cleaner/choice-cleaner';
+import { DefaultCleaner } from 'utils/task-cleaner/default-cleaner';
 
 
 @Module({
-  imports: [AuthModule, UserModule, PrismaModule, QuestModule, MediaModule, SingleChoiceTaskModule, QuestTaskModule, UserQuestProgressModule, UserAnswerModule, OptionModule, QuestViewModule],
+  imports: [AuthModule, UserModule, PrismaModule, QuestModule, MediaModule, SingleChoiceTaskModule, QuestTaskModule, UserQuestProgressModule, UserAnswerModule, OptionModule, QuestViewModule, MultipleChoiceTaskModule],
   controllers: [AuthController, UserController, QuestTaskController, UserQuestProgressController],
   providers: [{
     provide: APP_GUARD,
@@ -38,6 +43,9 @@ import { QuestViewModule } from './quest-view/quest-view.module';
   UserQuestProgressService,
   QuestTaskService,
   QuestGateway,
+  TaskCleanerFactory,
+  ChoiceCleaner,
+  DefaultCleaner,
 ],
 })
 export class AppModule {}
