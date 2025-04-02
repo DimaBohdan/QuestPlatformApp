@@ -3,9 +3,10 @@ import { CreateSingleChoiceTaskDto } from './dto/single-choice-task.create.dto';
 import { QuestTaskService } from 'src/quest-task/quest-task.service';
 import { QuestTask } from '@prisma/client';
 import { OptionService } from 'src/option/option.service';
+import { IQuestServiceTask } from 'utils/interfaces/quest-service-task.interface';
 
 @Injectable()
-export class SingleChoiceTaskService {
+export class SingleChoiceTaskService implements IQuestServiceTask {
   constructor(
     private taskService: QuestTaskService,
     private optionService: OptionService,
