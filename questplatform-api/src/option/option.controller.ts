@@ -36,10 +36,10 @@ export class OptionController {
   @Patch(':id')
   @ApiOperation({ summary: 'Update option by id' })
   @ApiParam({ name: 'id', description: 'Option ID' })
-  @ApiBody({ type: CreateOptionDto })
+  @ApiBody({ type: UpdateOptionDto })
   updateOption(
     @Param('id') id: string, 
-    @Body() dto: CreateOptionDto,
+    @Body() dto: UpdateOptionDto,
     @UploadedFile() file?: Express.Multer.File,
   ) {
     return this.optionService.updateOption(id, dto, file);
