@@ -26,10 +26,14 @@ import { OptionService } from './option/option.service';
 import { TaskCleanerFactory } from './quest-task/task-cleaner/task-cleaner.factory';
 import { ChoiceCleaner } from 'utils/task-cleaner/choice-cleaner';
 import { DefaultCleaner } from 'utils/task-cleaner/default-cleaner';
+import { TextFieldTaskModule } from './text-field-task/text-field-task.module';
+import { FindOnPictureTaskModule } from './find-on-picture-task/find-on-picture-task.module';
+import { CoordinateModule } from './coordinate/coordinate.module';
+import { FindOnMapTaskModule } from './find-on-map-task/find-on-map-task.module';
 
 
 @Module({
-  imports: [AuthModule, UserModule, PrismaModule, QuestModule, MediaModule, SingleChoiceTaskModule, QuestTaskModule, UserQuestProgressModule, UserAnswerModule, OptionModule, QuestViewModule, MultipleChoiceTaskModule],
+  imports: [AuthModule, UserModule, PrismaModule, QuestModule, MediaModule, SingleChoiceTaskModule, QuestTaskModule, UserQuestProgressModule, UserAnswerModule, OptionModule, QuestViewModule, MultipleChoiceTaskModule, TextFieldTaskModule, FindOnPictureTaskModule, CoordinateModule, FindOnMapTaskModule],
   controllers: [AuthController, UserController, QuestTaskController, UserQuestProgressController],
   providers: [{
     provide: APP_GUARD,
