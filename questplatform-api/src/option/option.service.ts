@@ -29,7 +29,7 @@ export class OptionService {
   }
 
   async getOptionById(id: string): Promise<Option> {
-    const option =  await this.getOptionById(id);
+    const option =  await this.optionRepository.getOptionById(id);
     if (!option) {
         throw new NotFoundException('Option not found');
     }
