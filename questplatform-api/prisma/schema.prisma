@@ -112,7 +112,7 @@ model QuestTask {
 
   textAnswer     String[]    
   coordinate     Coordinate? @relation(name: "FindOnTaskPoints") // FIND_ON_MAP AND FIND_ON_PICTURE
-  startNodeId    String?     
+  startNodeId    String?  
   startNode      PlotNode?   @relation(name: "StartNodeRelation")
   nodes          PlotNode[]  @relation(name: "NodesRelation")
 
