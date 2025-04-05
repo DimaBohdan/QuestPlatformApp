@@ -38,11 +38,6 @@ export class FriendshipController {
       return this.friendshipService.declineRequest(id, req.user.id);
   }
 
-  // @Get('task/:taskId')
-  // getOptionsByTask(@Param('taskId') taskId: string) {
-  //   return this.optionService.getOptionsByTask(taskId);
-  // }
-
   @Get(':userId')
   @ApiOperation({ summary: 'Get friends by userId' })
   @ApiParam({ name: 'userId', description: 'User ID' })
