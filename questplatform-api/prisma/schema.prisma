@@ -40,7 +40,9 @@ model Friendship {
   receiverId  String
   status      Status  @default(PENDING)
   createdAt   DateTime @default(now())
+  
   @@id([requesterId, receiverId])
+  @@index([receiverId])
   @@map("friendships")
 }
 
@@ -112,9 +114,8 @@ model QuestTask {
 
   textAnswer     String[]    
   coordinate     Coordinate? @relation(name: "FindOnTaskPoints") // FIND_ON_MAP AND FIND_ON_PICTURE
-  startNodeId    String?  
-  startNode      PlotNode?   @relation(name: "StartNodeRelation")
-  nodes          PlotNode[]  @relation(name: "NodesRelation")
+ 
+  plotNodes      PlotNode[]  @relation("QuestTaskNodes")
 
   userAnswers    UserAnswer[] @relation("UserTaskAnswers")
   currentTaskUsers UserQuestProgress[] @relation("CurrentTaskProgress")
@@ -124,26 +125,25 @@ model QuestTask {
 }
 
 model PlotNode {
-  id         String   @id @default(uuid())
-  taskId     String
-  task        QuestTask? @relation(name: "NodesRelation", fields: [taskId], references: [id], onDelete: Cascade)
-  text       String
+  id        String   @id @default(uuid())
+  taskId    String
+  task      QuestTask @relation("QuestTaskNodes", fields: [taskId], references: [id], onDelete: Cascade)
+  text      String
+  isStart   Boolean  @default(false)
 
   choices    PlotChoice[] @relation("PlotNodeChoice")
-  plotNextChoice PlotChoice? @relation("PlotNextNodeChoices")
-  taskStartId String?      @unique
-  taskStartNode QuestTask? @relation(name: "StartNodeRelation", fields: [taskStartId], references: [id], onDelete: Cascade) 
+  prevChoices PlotChoice[] @relation("PlotNextNodeChoices")
 
   @@map("plot_nodes")
 }
 
 model PlotChoice {
-  id         String   @id @default(uuid())
-  nodeId     String
-  node       PlotNode @relation("PlotNodeChoice", fields: [nodeId], references: [id], onDelete: Cascade)
-  text       String
-  nextNodeId String?  @unique
-  nextNode   PlotNode? @relation("PlotNextNodeChoices", fields: [nextNodeId], references: [id], onDelete: Cascade)
+  id        String   @id @default(uuid())
+  nodeId    String
+  node      PlotNode @relation("PlotNodeChoice", fields: [nodeId], references: [id], onDelete: Cascade)
+  text      String
+  nextNodeId String?
+  nextNode  PlotNode? @relation("PlotNextNodeChoices", fields: [nextNodeId], references: [id], onDelete: Cascade)
   userAnswers  UserAnswer[]
 
   @@map("plot_choices")
