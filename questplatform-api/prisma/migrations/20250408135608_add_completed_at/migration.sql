@@ -1,0 +1,4 @@
+-- AlterTable
+ALTER TABLE "QuestRun" ADD COLUMN     "completedAt" TIMESTAMP(3),
+ALTER COLUMN "startedAt" DROP NOT NULL,
+ALTER COLUMN "startedAt" DROP DEFAULT;
