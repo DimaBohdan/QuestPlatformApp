@@ -29,14 +29,14 @@ export class QuestController {
   @ApiQuery({ name: 'difficulty', required: false, description: 'Filter by quest difficulty', type: Number })
   @ApiQuery({ name: 'sortBy', required: false, enum: QuestSortField, description: 'Sort by parameters' })
   @ApiQuery({ name: 'sortOrder', required: false, enum: QuestSortOrder, description: 'Choose sortOrder' })
-  async getPublicQuests(
+  async getPublishedQuests(
     @Query('title') title?: string,
     @Query('category') category?: Category,
     @Query('difficulty') difficulty?: number,
     @Query('sortBy') sortBy?: QuestSortField,
     @Query('sortOrder') sortOrder?: QuestSortOrder,
   ): Promise<Quest[]> {
-    return this.questService.getAllPublicQuests({ title, category, difficulty }, { sortBy, sortOrder });
+    return this.questService.getAllPublishedQuests({ title, category, difficulty }, { sortBy, sortOrder });
   }
 
   @Public()
@@ -47,7 +47,7 @@ export class QuestController {
   @ApiQuery({ name: 'difficulty', required: false, description: 'Filter by quest difficulty', type: Number })
   @ApiQuery({ name: 'sortBy', required: false, enum: QuestSortField, description: 'Sort by parameters' })
   @ApiQuery({ name: 'sortOrder', required: false, enum: QuestSortOrder, description: 'Choose sortOrder' })
-  async getReadyQuests(
+  async getAllReadyQuests(
     @Query('title') title?: string,
     @Query('category') category?: Category,
     @Query('difficulty') difficulty?: number,
@@ -68,7 +68,21 @@ export class QuestController {
     @Query('category') category?: Category,
     @Query('difficulty') difficulty?: number,
   ): Promise<Quest[]> {
-    return this.questService.getMyQuests(req.user.id, { title, category, difficulty });
+    return this.questService.getAllMyQuests(req.user.id, { title, category, difficulty });
+  }
+
+  @Get('/my-ready')
+  @ApiOperation({ summary: 'Get quests created by user' })
+  @ApiQuery({ name: 'title', required: false, description: 'Filter by quest title' })
+  @ApiQuery({ name: 'category', required: false, description: 'Filter by quest category' })
+  @ApiQuery({ name: 'difficulty', required: false, description: 'Filter by quest difficulty', type: Number })
+  async getMyReadyQuests(
+    @Req() req: RequestWithUser,
+    @Query('title') title?: string,
+    @Query('category') category?: Category,
+    @Query('difficulty') difficulty?: number,
+  ): Promise<Quest[]> {
+    return this.questService.getMyReadyQuests(req.user.id, { title, category, difficulty });
   }
 
   @Public()
@@ -77,16 +91,6 @@ export class QuestController {
   @ApiParam({ name: 'id', description: 'Quest ID' })
   async getQuestById(@Param('id') id: string): Promise<Quest> {
     return this.questService.findQuestById(id);
-  }
-
-  @Post(':questId/start')
-  @ApiOperation({ summary: 'Start new quest session' })
-  @ApiParam({ name: 'questId', description: 'Quest ID to start' })
-  async startQuest(
-    @Req() req: RequestWithUser, 
-    @Param('questId') questId: string
-  ) {
-    return await this.questService.startQuest(req.user.id, questId);
   }
 
   @Post()

@@ -8,6 +8,11 @@ export class UpdateQuestTaskDto {
   @IsString()
   question?: string;
 
+  @ApiProperty({ description: 'The time maximum for the task' })
+  @IsOptional()
+  @IsInt()
+  time?: number;
+
   @ApiProperty({ description: 'The type of the task' })
   @IsOptional()
   @IsEnum(QuestTaskType)

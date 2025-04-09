@@ -83,7 +83,7 @@ model QuestRun {
   createdAt   DateTime    @default(now())
   startedAt   DateTime?
   completedAt DateTime?
-  currentTaskIndex Int    @default(0)
+  currentTaskIndex Int    @default(-1)
   status    QuestRunStatus @default(INACTIVE)
 
   progess   UserQuestProgress[]

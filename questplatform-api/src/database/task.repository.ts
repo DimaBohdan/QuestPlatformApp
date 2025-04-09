@@ -1,7 +1,6 @@
 import { Injectable } from '@nestjs/common';
 import { PrismaService } from 'src/prisma/prisma.service';
 import { QuestTask } from '@prisma/client';
-import { CreateQuestTaskDto } from 'src/quest-task/dto/create.quest-task.dto';
 import { UpdateQuestTaskDto } from 'src/quest-task/dto/update.quest-task.dto';
 import { CreateBaseQuestTaskDto } from 'src/quest-task/dto/create.base-quest-task.dto';
 
@@ -11,7 +10,16 @@ export class QuestTaskRepository {
 
   async findById(id: string): Promise<QuestTask | null> {
     const task = await this.prisma.questTask.findUnique({ where: { id } });
-    return this.prisma.questTask.findUnique({ where: { id } });
+    return task;
+  }
+
+  async findTaskByIndex(questId: string, order: number): Promise<QuestTask | null> {
+    const task = await this.prisma.questTask.findUnique({ where:
+      { questId_order:
+        { questId, order }
+      } 
+    });
+    return task;
   }
 
   async findFirstTask(questId: string, minTaskOrder: number): Promise<QuestTask | null> {

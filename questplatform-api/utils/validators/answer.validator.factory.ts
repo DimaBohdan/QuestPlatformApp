@@ -1,3 +1,4 @@
+import { QuestTaskType } from "@prisma/client";
 import { AnswerValidator } from "./answer.validator";
 import { MultipleChoiceValidator } from "./multiple-choice.validator";
 import { PlotTaskValidator } from "./plot-task.validator";
@@ -6,10 +7,10 @@ import { TextAnswerValidator } from "./text-answer.validator";
 
 export class AnswerValidatorFactory {
     static getValidator(taskType: string): AnswerValidator {
-      if (taskType === 'TEXT_FIELD') return new TextAnswerValidator();
-      if (taskType === 'SINGLE_CHOICE') return new SingleChoiceValidator();
-      if (taskType === 'MULTIPLE_CHOICE') return new MultipleChoiceValidator();
-      if (taskType === 'PLOT_TASK') return new PlotTaskValidator();
+      if (taskType === QuestTaskType.TEXT_FIELD) return new TextAnswerValidator();
+      if (taskType === QuestTaskType.SINGLE_CHOICE) return new SingleChoiceValidator();
+      if (taskType === QuestTaskType.MULTIPLE_CHOICE) return new MultipleChoiceValidator();
+      if (taskType === QuestTaskType.INTERACTIVE_PLOT) return new PlotTaskValidator();
       
       throw new Error(`Unknown task type: ${taskType}`);
     }

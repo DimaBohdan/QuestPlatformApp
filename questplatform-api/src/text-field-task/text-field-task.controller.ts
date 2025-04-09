@@ -6,7 +6,7 @@ import { QuestionTaskDTO } from 'src/quest-task/dto/question.task.dto';
 import { QuestTask } from '@prisma/client';
 import { TextFieldTaskService } from './text-field-task.service';
 
-@ApiTags('Single Choice Task')
+@ApiTags('Text Field Choice Task')
 @Controller('text-field-task')
 export class TextFieldTaskController implements IQuestControllerTask {
   constructor(

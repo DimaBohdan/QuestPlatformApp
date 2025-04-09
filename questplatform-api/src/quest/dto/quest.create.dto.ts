@@ -13,11 +13,6 @@ export class CreateQuestDto {
   @IsString()
   description?: string;
 
-  @ApiProperty({ description: 'The time maximum for the quest' })
-  @IsOptional()
-  @IsInt()
-  time?: number;
-
   @ApiProperty({ description: 'The difficulty of the quest' })
   @IsNotEmpty()
   @IsInt()
@@ -27,6 +22,7 @@ export class CreateQuestDto {
   @IsNotEmpty()
   @IsEnum(Category)
   category: Category;
+  
 
   @ApiProperty({ description: 'The tags of the quest' })
   @IsOptional()
