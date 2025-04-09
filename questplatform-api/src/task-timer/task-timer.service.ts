@@ -1,4 +1,4 @@
-import { Injectable } from "@nestjs/common";
+import { forwardRef, Inject, Injectable } from "@nestjs/common";
 import { QuestRunService } from "src/quest-run/quest-run.service";
 
 @Injectable()
@@ -6,6 +6,7 @@ export class TaskTimerService {
   private taskTimers: Map<string, NodeJS.Timeout> = new Map();
 
   constructor(
+    @Inject(forwardRef(() => QuestRunService))
     private readonly questRunService: QuestRunService,
   ) {}
 
