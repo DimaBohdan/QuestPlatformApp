@@ -14,7 +14,7 @@ import { QuestGateway } from './quest.gateway';
 @Module({
   imports: [PrismaModule, AuthModule, MediaModule, forwardRef(() => QuestTaskModule), UserQuestProgressModule, UserAnswerModule],
   controllers: [QuestController],
-  providers: [QuestService, QuestRepository, JwtAuthGuard, QuestGateway],
-  exports: [QuestService, QuestRepository, QuestGateway],
+  providers: [QuestService, QuestRepository, JwtAuthGuard],
+  exports: [QuestService, QuestRepository],
 })
 export class QuestModule {}

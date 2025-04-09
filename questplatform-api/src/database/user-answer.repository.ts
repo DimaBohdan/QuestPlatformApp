@@ -7,10 +7,10 @@ import { UserAnswerDTO } from "src/user-answer/dto/answer.dto";
 export class UserAnswerRepository {
   constructor(private readonly prisma: PrismaService) {}
   
-  async create(userId: string, taskId: string, answer: UserAnswerDTO): Promise<UserAnswer> {
+  async create(progressId: string, taskId: string, answer: UserAnswerDTO): Promise<UserAnswer> {
     return await this.prisma.userAnswer.create({
       data: {
-        userId,
+        progressId,
         taskId,
         textAnswer: answer.textAnswer || null,
         selectedCoordsId: answer.selectedCoordsId || null,
@@ -18,7 +18,7 @@ export class UserAnswerRepository {
         selectedOptions: answer.selectedOptions?.length
           ? {
               create: answer.selectedOptions.map(optionId => ({
-                option: { connect: { id: optionId } }
+                optionId,
               }))
             }
           : undefined,
@@ -27,5 +27,24 @@ export class UserAnswerRepository {
         selectedOptions: true,
       },
     });
+  }
+
+  async getAnsweredUserIds(runId: string, taskId: string): Promise<string[]> {
+    const answers = await this.prisma.userAnswer.findMany({
+      where: {
+        taskId,
+        progress: {
+          runId,
+        },
+      },
+      select: {
+        progress: {
+          select: {
+            userId: true,
+          },
+        },
+      },
+    });
+    return answers.map(answer => answer.progress.userId);
   }
 }

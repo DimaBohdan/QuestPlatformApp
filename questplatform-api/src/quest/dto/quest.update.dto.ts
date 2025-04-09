@@ -13,11 +13,6 @@ export class UpdateQuestDto {
   @IsString()
   description?: string;
 
-  @ApiProperty({ description: 'The time maximum for the quest' })
-  @IsOptional()
-  @IsInt()
-  time?: number;
-
   @ApiProperty({ description: 'The difficulty of the quest' })
   @IsOptional()
   @IsInt()

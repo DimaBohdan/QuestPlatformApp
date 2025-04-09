@@ -31,6 +31,7 @@ model User {
   receivedFriendRequests Friendship[] @relation("UserReceiverFriendships")
   questProgress UserQuestProgress[]
   questViews    QuestView[]
+  createdRuns   QuestRun[]
 }
 
 model Friendship {
@@ -53,11 +54,10 @@ model Quest {
   authorId    String
   author      User    @relation("UserCreatedQuests", fields: [authorId], references: [id], onDelete: Cascade)
   completedByUsers UserCompletedQuest[]
-  time        Float?
   difficulty  Int
   category    Category
   tags        String[]       
-  isPublic    Boolean     @default(false)
+  quest_status QuestStatus @default(DRAFT)
   rating      Float?
   tasks       QuestTask[]
   taskQuantity Int        @default(0)     
@@ -66,10 +66,32 @@ model Quest {
   themeId     String?
   theme       QuestTheme? @relation(fields: [themeId], references: [id], onDelete: Cascade)
   createdAt   DateTime    @default(now())
+  questRun    QuestRun[]
   questViews  QuestView[]
-  questProgress UserQuestProgress[]
   viewsCount  Int @default(0)
   playCount   Int @default(0)
+}
+
+model QuestRun {
+  id        String        @id @default(uuid())
+  mode      QuestRunMode
+  questId   String
+  quest     Quest         @relation(fields: [questId], references: [id])
+  createdById String
+  createdBy   User        @relation(fields: [createdById], references: [id])
+  sessionCode String?     @unique //multiplayer
+  createdAt   DateTime    @default(now())
+  startedAt   DateTime?
+  completedAt DateTime?
+  currentTaskIndex Int    @default(-1)
+  status    QuestRunStatus @default(INACTIVE)
+
+  progess   UserQuestProgress[]
+}
+
+enum QuestRunMode {
+  SINGLE_PLAYER
+  MULTIPLAYER
 }
 
 enum UserRole {
@@ -104,6 +126,7 @@ model QuestTask {
   questId String
   quest   Quest    @relation(fields: [questId], references: [id], onDelete: Cascade)
   question String
+  time    Int?
   type    QuestTaskType
   media   MediaFile?
   order   Int
@@ -118,7 +141,6 @@ model QuestTask {
   plotNodes      PlotNode[]  @relation("QuestTaskNodes")
 
   userAnswers    UserAnswer[] @relation("UserTaskAnswers")
-  currentTaskUsers UserQuestProgress[] @relation("CurrentTaskProgress")
 
   @@unique([questId, order])
   @@map("quest_tasks")
@@ -175,12 +197,10 @@ model UserQuestProgress {
   id         String   @id @default(uuid())
   userId     String
   user           User   @relation(fields: [userId], references: [id], onDelete: Cascade)
-  questId    String
-  quest      Quest    @relation(fields: [questId], references: [id], onDelete: Cascade)
-  currentTaskId String?
-  currentTask  QuestTask?   @relation(name: "CurrentTaskProgress", fields: [currentTaskId], references: [id], onDelete: Cascade)
-  startTime   DateTime @default(now()) 
-  completed   Boolean @default(false)
+  runId      String
+  run        QuestRun   @relation(fields: [runId], references: [id], onDelete: Cascade)
+
+  answers     UserAnswer[]
 }
 
 model MediaFile {
@@ -238,7 +258,8 @@ model Option {
 
 model UserAnswer {
   id         String   @id @default(uuid())
-  userId     String
+  progressId     String
+  progress       UserQuestProgress @relation(fields: [progressId], references: [id])
   taskId     String
   task       QuestTask @relation(name: "UserTaskAnswers", fields: [taskId], references: [id], onDelete: Cascade)
   createdAt DateTime @default(now())
@@ -291,6 +312,18 @@ enum Category {
   STUDY
   PSYCHOLOGY
   OTHER
+}
+
+enum QuestStatus {
+  DRAFT
+  READY
+  PUBLISHED
+}
+
+enum QuestRunStatus {
+  INACTIVE
+  STARTED
+  COMPLETED
 }
 
 enum Status {

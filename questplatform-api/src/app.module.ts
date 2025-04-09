@@ -33,10 +33,12 @@ import { FindOnMapTaskModule } from './find-on-map-task/find-on-map-task.module'
 import { InteractivePlotTaskModule } from './interactive-plot-task/interactive-plot-task.module';
 import { PlotNodeModule } from './plot-node/plot-node.module';
 import { FriendshipModule } from './friendship/friendship.module';
+import { QuestRunModule } from './quest-run/quest-run.module';
+import { TaskTimerModule } from './task-timer/task-timer.module';
 
 
 @Module({
-  imports: [AuthModule, UserModule, PrismaModule, QuestModule, MediaModule, SingleChoiceTaskModule, QuestTaskModule, UserQuestProgressModule, UserAnswerModule, OptionModule, QuestViewModule, MultipleChoiceTaskModule, TextFieldTaskModule, FindOnPictureTaskModule, CoordinateModule, FindOnMapTaskModule, InteractivePlotTaskModule, PlotNodeModule, FriendshipModule],
+  imports: [AuthModule, UserModule, PrismaModule, QuestModule, MediaModule, SingleChoiceTaskModule, QuestTaskModule, UserQuestProgressModule, UserAnswerModule, OptionModule, QuestViewModule, MultipleChoiceTaskModule, TextFieldTaskModule, FindOnPictureTaskModule, CoordinateModule, FindOnMapTaskModule, InteractivePlotTaskModule, PlotNodeModule, FriendshipModule, QuestRunModule, TaskTimerModule],
   controllers: [AuthController, UserController, QuestTaskController, UserQuestProgressController],
   providers: [{
     provide: APP_GUARD,

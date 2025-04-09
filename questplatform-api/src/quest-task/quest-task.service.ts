@@ -4,13 +4,11 @@ import { MediaService } from 'src/media/media.service';
 import { QuestTaskRepository } from 'src/database/task.repository';
 import { QuestService } from 'src/quest/quest.service';
 import { UpdateQuestTaskDto } from './dto/update.quest-task.dto';
-import { CreateQuestTaskDto } from './dto/create.quest-task.dto';
 import { CreateBaseQuestTaskDto } from './dto/create.base-quest-task.dto';
 import { TaskCleanerFactory } from './task-cleaner/task-cleaner.factory';
 
 @Injectable()
 export class QuestTaskService {
-  optionService: any;
   constructor(
     private taskRepository: QuestTaskRepository,
     @Inject(forwardRef(() => QuestService))
@@ -21,6 +19,14 @@ export class QuestTaskService {
 
   async findTaskById(id: string): Promise<QuestTask> {
     const task = await this.taskRepository.findById(id);
+    if (!task) {
+      throw new NotFoundException('Task not found');
+    }
+    return task;
+  }
+
+  async findTaskByIndex(questId: string, index: number): Promise<QuestTask> {
+    const task = await this.taskRepository.findTaskByIndex(questId, index);
     if (!task) {
       throw new NotFoundException('Task not found');
     }

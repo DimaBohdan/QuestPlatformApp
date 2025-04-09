@@ -1,95 +1,54 @@
-import { Injectable, NotFoundException, ForbiddenException, forwardRef, Inject } from '@nestjs/common';
+import { Injectable, NotFoundException, ForbiddenException, forwardRef, Inject, BadRequestException } from '@nestjs/common';
 import { QuestRepository } from 'src/database/quest.repository';
 import { CreateQuestDto } from './dto/quest.create.dto';
-import { Category, Quest, User } from '@prisma/client';
+import { Category, Quest, QuestStatus, User } from '@prisma/client';
 import { UpdateQuestDto } from './dto/quest.update.dto';
 import { MediaService } from 'src/media/media.service';
 import { QuestTaskService } from 'src/quest-task/quest-task.service';
 import { UserQuestProgressService } from 'src/user-quest-progress/user-quest-progress.service';
 import { UserAnswerService } from 'src/user-answer/user-answer.service';
 import { QuestGateway } from './quest.gateway';
-import { UserAnswerDTO } from 'src/user-answer/dto/answer.dto';
 import { QuestSortField } from './enums/QuestSortField.enum';
 import { QuestSortOrder } from './enums/QuestSortOrder.enum';
 
 
 @Injectable()
 export class QuestService {
-  private userTasks: { [userId: string]: string } = {};
 
   constructor(
     private questRepository: QuestRepository, 
     private mediaService: MediaService,
     @Inject(forwardRef(() => QuestTaskService))
     private questTaskService: QuestTaskService,
-    @Inject(forwardRef(() => UserQuestProgressService))
-    private userQuestProgressService: UserQuestProgressService,
-    private userAnswerService: UserAnswerService,
-    private questGateway: QuestGateway,
   ) {}
 
-  async getAllPublicQuests(
+  async getAllPublishedQuests(
     filter?: { title?: string; category?: Category; difficulty?: number },
     sort?: { sortBy?: QuestSortField, sortOrder?: QuestSortOrder }
   ): Promise<Quest[]> {
-    return this.questRepository.findAllPublic(filter, sort);
+    return this.questRepository.findAll(filter, sort, QuestStatus.PUBLISHED);
   }
 
   async getAllReadyQuests(filter?: { title?: string; category?: Category; difficulty?: number },
     sort?: { sortBy?: QuestSortField, sortOrder?: QuestSortOrder }
   ): Promise<Quest[]> {
-    return this.questRepository.findAllReady(filter, sort);
+    return this.questRepository.findAll(filter, sort, QuestStatus.READY);
   }
 
-  async getMyQuests(userId: string, filter?: { title?: string; category?: Category; difficulty?: number }): Promise<Quest[]> {
+  async getAllMyQuests(userId: string, filter?: { title?: string; category?: Category; difficulty?: number }): Promise<Quest[]> {
     return this.questRepository.findMyQuests(userId, filter);
   }
 
-  async findQuestById(id: string): Promise<Quest> {
-    const quest = await this.questRepository.findById(id);
+  async getMyReadyQuests(userId: string, filter?: { title?: string; category?: Category; difficulty?: number }): Promise<Quest[]> {
+    return this.questRepository.findMyQuests(userId, filter, QuestStatus.READY);
+  }
+
+  async findQuestById(id: string, questStatus?: QuestStatus): Promise<Quest> {
+    const quest = await this.questRepository.findById(id, questStatus);
     if (!quest) {
       throw new NotFoundException('Quest not found');
     }
     return quest;
-  }
-
-  async startQuest(userId: string, questId: string) {
-    let progress = await this.userQuestProgressService.findLastProgress(userId, questId);
-    if (!progress) {
-      const firstTask = await this.questTaskService.findFirstTask(questId);
-      if (!firstTask) throw new NotFoundException('No tasks found for this quest');
-
-      progress = await this.userQuestProgressService.create(userId, firstTask.id);
-    }
-    const currentTaskId = progress.currentTaskId;
-    if (!currentTaskId) throw new NotFoundException('Task not found');
-    this.userTasks[userId] = currentTaskId;
-
-    await this.processTask(userId, questId);
-  }
-
-  private async processTask(userId: string, questId: string) {
-    const currentTaskId = this.userTasks[userId];
-    if (!currentTaskId) return;
-    let task = await this.questTaskService.findTaskById(currentTaskId);
-    if (!task) throw new NotFoundException('Task not found');
-
-    this.questGateway.sendTask(userId, questId, task);
-
-    this.questGateway.onAnswerReceived(async (receivedUserId, receivedTaskId, answer) => {
-      if (receivedUserId !== userId || receivedTaskId !== task.id) return;
-
-      await this.userAnswerService.create(userId, task.id, answer);
-
-      const nextTask = await this.questTaskService.findFirstTask(questId, task.order);
-      if (!nextTask) {
-        await this.userQuestProgressService.completeProgress(userId, questId);
-        this.questGateway.sendQuestCompleted(userId, questId);
-        return;
-      }
-      await this.userQuestProgressService.progressNewTask(userId, nextTask.id);
-      this.processTask(userId, questId);
-    });
   }
 
   async createQuest(data: CreateQuestDto, authorId: string, file?: Express.Multer.File): Promise<Quest> {
@@ -121,5 +80,22 @@ export class QuestService {
       throw new NotFoundException('Quest not found');
     }
     return this.questRepository.delete(id);
+  }
+
+  async setQuestReady(id: string): Promise<Quest> {
+    const quest = await this.findQuestById(id);
+    const tasks = await this.questTaskService.findTasksByQuest(id);
+    if (!(quest.taskQuantity >= 1 && tasks.every(task => task.isFinalized))) {
+      throw new BadRequestException('All tasks must be finalized and at least one task must exist');
+    }  
+    return await this.questRepository.setStatus(id, QuestStatus.READY);
+  }
+
+  async setQuestPublished(id: string): Promise<Quest> {
+    const quest = await this.findQuestById(id);
+    if (quest.quest_status !== QuestStatus.READY) {
+      throw new BadRequestException('Quest must be ready to publish it!');
+    }
+    return await this.questRepository.setStatus(id, QuestStatus.PUBLISHED)
   }
 }

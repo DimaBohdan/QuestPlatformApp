@@ -1,32 +1,57 @@
-import { Injectable, NotFoundException } from "@nestjs/common";
-import { UserQuestProgress } from "@prisma/client";
-import { QuestTaskRepository } from "src/database/task.repository";
+import { BadRequestException, forwardRef, Inject, Injectable, NotFoundException } from "@nestjs/common";
+import { QuestRunStatus, UserQuestProgress } from "@prisma/client";
 import { UserQuestProgressRepository } from "src/database/user-quest-progress.repository";
-import { QuestTaskService } from "src/quest-task/quest-task.service";
+import { QuestRunGateway } from "src/quest-run/quest-run.gateway";
+import { QuestRunService } from "src/quest-run/quest-run.service";
 
 @Injectable()
 export class UserQuestProgressService {
   constructor(
     private progressRepository: UserQuestProgressRepository,
-    private taskService: QuestTaskService,
+    @Inject(forwardRef(() => QuestRunService))
+    private questRunService: QuestRunService,
+    private questRunGateway: QuestRunGateway,
   ) {}
 
-  async findLastProgress(userId: string, questId: string): Promise<UserQuestProgress | null> {
-    const progress = await this.progressRepository.findLastProgress(userId, questId);
+  async joinMultiplayer(sessionCode: string, userId: string): Promise<UserQuestProgress> {
+    const run = await this.questRunService.findBySessionCode(sessionCode);
+    if (run.status == QuestRunStatus.INACTIVE) {
+      this.questRunGateway.sendUserJoined(run.id, userId);
+      return await this.createProgress(run.id, userId);
+    }
+    else {
+      throw new BadRequestException('Multiplayer quest run cannot be joined')
+    }
+  }
+
+  async joinSinglePlayer(runId: string, userId: string): Promise<UserQuestProgress> {
+    const run = await this.questRunService.getQuestRunById(runId);
+    if (run.status == QuestRunStatus.INACTIVE) {
+      this.questRunGateway.sendUserJoined(run.id, userId);
+      return await this.createProgress(run.id, userId);
+    }
+    else {
+      throw new BadRequestException('Singleplayer quest run cannot be joined')
+    }
+  }
+
+  async createProgress(runId: string, userId: string): Promise<UserQuestProgress> {
+    const progress = await this.findProgress(runId, userId);
+    if (progress) {
+      throw new BadRequestException('Already existing user progress');
+    }
+    return await this.progressRepository.createProgress(userId, runId);
+  }
+
+  async findProgressByRun(runId: string): Promise<UserQuestProgress[]> {
+    return await this.progressRepository.findProgressByRun(runId);
+  }
+
+  async findProgress(runId: string, userId: string): Promise<UserQuestProgress> {
+    const progress = await this.progressRepository.findProgress(userId, runId);
+    if (!progress) {
+      throw new NotFoundException('Progress not found');
+    }
     return progress;
-  }
-
-  async progressNewTask(userId: string, taskId: string): Promise<UserQuestProgress[]> {
-    const task = await this.taskService.findTaskById(taskId);
-    return await this.progressRepository.progressNewTask(userId, task.questId, taskId);
-  }
-
-  async completeProgress(userId: string, questId: string): Promise<UserQuestProgress[]> {
-    return await this.progressRepository.completeProgress(userId, questId);
-  }
-
-  async create(userId: string, currentTaskId: string): Promise<UserQuestProgress> {
-    const task = await this.taskService.findTaskById(currentTaskId);
-    return await this.progressRepository.create(userId, task.questId, currentTaskId);
   }
 }
