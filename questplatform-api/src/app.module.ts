@@ -1,45 +1,46 @@
 import { Module } from '@nestjs/common';
-import { AuthModule } from './auth/auth.module';
-import { UserService } from './user/user.service';
-import { UserController } from './user/user.controller';
-import { UserModule } from './user/user.module';
+import { AuthModule } from './modules/auth.module';
+import { UserService } from './services/user.service';
+import { UserController } from './controllers/user.controller';
+import { UserModule } from './modules/user.module';
 import { APP_GUARD } from '@nestjs/core';
 import { JwtAuthGuard } from 'utils/guards/jwt.guard';
 import { RolesGuard } from 'utils/guards/roles.guard';
-import { AuthController } from './auth/auth.controller';
+import { AuthController } from './controllers/auth.controller';
 import { PrismaModule } from './prisma/prisma.module';
-import { QuestModule } from './quest/quest.module';
-import { MediaModule } from './media/media.module';
-import { SingleChoiceTaskModule } from './single-choice-task/single-choice-task.module';
-import { QuestTaskModule } from './quest-task/quest-task.module';
-import { UserQuestProgressService } from './user-quest-progress/user-quest-progress.service';
-import { UserQuestProgressController } from './user-quest-progress/user-quest-progress.controller';
-import { UserQuestProgressModule } from './user-quest-progress/user-quest-progress.module';
-import { UserAnswerModule } from './user-answer/user-answer.module';
-import { QuestTaskService } from './quest-task/quest-task.service';
-import { QuestTaskController } from './quest-task/quest-task.controller';
-import { OptionModule } from './option/option.module';
-import { QuestGateway } from './quest/quest.gateway';
-import { QuestViewModule } from './quest-view/quest-view.module';
-import { MultipleChoiceTaskModule } from './multiple-choice-task/multiple-choice-task.module';
-import { OptionService } from './option/option.service';
-import { TaskCleanerFactory } from './quest-task/task-cleaner/task-cleaner.factory';
+import { QuestModule } from './modules/quest.module';
+import { MediaModule } from './modules/media.module';
+import { SingleChoiceTaskModule } from './modules/single-choice-task.module';
+import { QuestTaskModule } from './modules/quest-task.module';
+import { UserQuestProgressService } from './services/user-quest-progress.service';
+import { UserQuestProgressModule } from './modules/user-quest-progress.module';
+import { UserAnswerModule } from './modules/user-answer.module';
+import { QuestTaskService } from './services/quest-task.service';
+import { OptionModule } from './modules/option.module';
+import { QuestGateway } from './gateway/quest.gateway';
+import { QuestViewModule } from './modules/quest-view.module';
+import { MultipleChoiceTaskModule } from './modules/multiple-choice-task.module';
+import { TaskCleanerFactory } from './gateway/task-cleaner.factory';
 import { ChoiceCleaner } from 'utils/task-cleaner/choice-cleaner';
-import { DefaultCleaner } from 'utils/task-cleaner/default-cleaner';
-import { TextFieldTaskModule } from './text-field-task/text-field-task.module';
-import { FindOnPictureTaskModule } from './find-on-picture-task/find-on-picture-task.module';
-import { CoordinateModule } from './coordinate/coordinate.module';
-import { FindOnMapTaskModule } from './find-on-map-task/find-on-map-task.module';
-import { InteractivePlotTaskModule } from './interactive-plot-task/interactive-plot-task.module';
-import { PlotNodeModule } from './plot-node/plot-node.module';
-import { FriendshipModule } from './friendship/friendship.module';
-import { QuestRunModule } from './quest-run/quest-run.module';
-import { TaskTimerModule } from './task-timer/task-timer.module';
+import { DefaultCleaner } from 'utils/task-cleaner/text-cleaner';
+import { TextFieldTaskModule } from './modules/text-field-task.module';
+import { FindOnPictureTaskModule } from './modules/find-on-picture-task.module';
+import { CoordinateModule } from './modules/coordinate.module';
+import { FindOnMapTaskModule } from './modules/find-on-map-task.module';
+import { InteractivePlotTaskModule } from './modules/interactive-plot-task.module';
+import { PlotNodeModule } from './modules/plot-node.module';
+import { FriendshipModule } from './modules/friendship.module';
+import { QuestRunModule } from './modules/quest-run.module';
+import { TaskTimerModule } from './modules/task-timer.module';
+import { SingleChoiceAnswerModule } from './modules/single-choice-answer.module';
+import { MultipleChoiceAnswerModule } from './modules/multiple-choice-answer.module';
+import { TextFieldAnswerModule } from './modules/text-field-answer.module';
+import { CoordinateAnswerModule } from './modules/coordinate-answer.module';
 
 
 @Module({
-  imports: [AuthModule, UserModule, PrismaModule, QuestModule, MediaModule, SingleChoiceTaskModule, QuestTaskModule, UserQuestProgressModule, UserAnswerModule, OptionModule, QuestViewModule, MultipleChoiceTaskModule, TextFieldTaskModule, FindOnPictureTaskModule, CoordinateModule, FindOnMapTaskModule, InteractivePlotTaskModule, PlotNodeModule, FriendshipModule, QuestRunModule, TaskTimerModule],
-  controllers: [AuthController, UserController, QuestTaskController, UserQuestProgressController],
+  imports: [AuthModule, UserModule, PrismaModule, QuestModule, MediaModule, SingleChoiceTaskModule, QuestTaskModule, UserQuestProgressModule, UserAnswerModule, OptionModule, QuestViewModule, MultipleChoiceTaskModule, TextFieldTaskModule, FindOnPictureTaskModule, CoordinateModule, FindOnMapTaskModule, InteractivePlotTaskModule, PlotNodeModule, FriendshipModule, QuestRunModule, TaskTimerModule, SingleChoiceAnswerModule, MultipleChoiceAnswerModule, TextFieldAnswerModule, CoordinateAnswerModule],
+  controllers: [],
   providers: [{
     provide: APP_GUARD,
     useClass: JwtAuthGuard,

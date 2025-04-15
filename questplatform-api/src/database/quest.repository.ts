@@ -1,10 +1,10 @@
 import { Injectable } from '@nestjs/common';
 import { Category, Quest, QuestStatus, QuestTask } from '@prisma/client';
 import { PrismaService } from 'src/prisma/prisma.service';
-import { CreateQuestDto } from 'src/quest/dto/quest.create.dto';
-import { UpdateQuestDto } from 'src/quest/dto/quest.update.dto';
-import { QuestSortField } from 'src/quest/enums/QuestSortField.enum';
-import { QuestSortOrder } from 'src/quest/enums/QuestSortOrder.enum';
+import { CreateQuestDto } from 'src/dto/quest.create.dto';
+import { UpdateQuestDto } from 'src/dto/quest.update.dto';
+import { QuestSortField } from 'src/enums/QuestSortField.enum';
+import { QuestSortOrder } from 'src/enums/QuestSortOrder.enum';
 
 @Injectable()
 export class QuestRepository {

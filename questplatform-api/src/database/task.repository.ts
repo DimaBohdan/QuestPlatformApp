@@ -1,8 +1,8 @@
 import { Injectable } from '@nestjs/common';
 import { PrismaService } from 'src/prisma/prisma.service';
 import { QuestTask } from '@prisma/client';
-import { UpdateQuestTaskDto } from 'src/quest-task/dto/update.quest-task.dto';
-import { CreateBaseQuestTaskDto } from 'src/quest-task/dto/create.base-quest-task.dto';
+import { UpdateQuestTaskDto } from 'src/dto/update.quest-task.dto';
+import { CreateBaseQuestTaskDto } from 'src/dto/create.base-quest-task.dto';
 
 @Injectable()
 export class QuestTaskRepository {
@@ -20,13 +20,6 @@ export class QuestTaskRepository {
       } 
     });
     return task;
-  }
-
-  async findFirstTask(questId: string, minTaskOrder: number): Promise<QuestTask | null> {
-    return this.prisma.questTask.findFirst({
-      where: { questId, order: { gte: minTaskOrder } },
-      orderBy: { order: 'asc' },
-    });
   }
 
   async findLastTask(questId: string): Promise<QuestTask | null> {
@@ -122,6 +115,15 @@ export class QuestTaskRepository {
         },
       });
       return task;
+    });
+  }
+
+  async clearTextAnswer(taskId: string): Promise<void> {
+    await this.prisma.questTask.update({ 
+      where: { id: taskId },
+      data: {
+        textAnswer: undefined,
+      },
     });
   }
 }

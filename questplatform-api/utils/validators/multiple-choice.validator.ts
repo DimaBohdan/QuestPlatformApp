@@ -1,4 +1,4 @@
-import { UserAnswerDTO } from "../../src/user-answer/dto/answer.dto";
+import { UserAnswerDTO } from "../../src/dto/answer.dto";
 import { AnswerValidator } from "./answer.validator";
 
 export class MultipleChoiceValidator implements AnswerValidator {

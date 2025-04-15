@@ -4,6 +4,8 @@ import { AppModule } from './app.module';
 import * as cookieParser from 'cookie-parser';
 import { ValidationPipe } from '@nestjs/common';
 import { CaslForbiddenExceptionFilter } from 'utils/exception-filters.ts/casl-forbidden-exception.filter';
+import { FastifyAdapter, NestFastifyApplication } from '@nestjs/platform-fastify';
+import fastifyExpress from '@fastify/express';
 
 async function bootstrap() {
   const app = await NestFactory.create(AppModule);

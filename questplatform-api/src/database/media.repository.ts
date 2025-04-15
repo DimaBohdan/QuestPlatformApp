@@ -1,6 +1,6 @@
 import { Injectable } from '@nestjs/common';
 import { MediaFile } from '@prisma/client';
-import { CreateMediaDto } from 'src/media/dto/create.media.dto';
+import { CreateMediaDto } from 'src/dto/create.media.dto';
 import { PrismaService } from 'src/prisma/prisma.service';
 
 @Injectable()

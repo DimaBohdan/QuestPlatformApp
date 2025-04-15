@@ -1,7 +1,7 @@
 import { Injectable } from "@nestjs/common";
 import { Coordinate } from "@prisma/client";
-import { CreateCoordinateDto } from "src/coordinate/dto/coordinate.create.dto";
-import { UpdateCoordinateDto } from "src/coordinate/dto/coordinate.update.dto";
+import { CreateCoordinateDto } from "src/dto/coordinate.create.dto";
+import { UpdateCoordinateDto } from "src/dto/coordinate.update.dto";
 import { PrismaService } from "src/prisma/prisma.service";
 
 @Injectable()
@@ -32,6 +32,24 @@ export class CoordinateRepository {
       data
     });
   }
+
+  // async getCoordinateWithAuthor(id: string): Promise<string | undefined> {
+  //   const coordinate = await this.prisma.coordinate.findUnique({
+  //     where: { id },
+  //     include: {
+  //       findOnTask: {
+  //         include: {
+  //           quest: {
+  //             select: {
+  //               authorId: true,
+  //             },
+  //           },
+  //         },
+  //       },
+  //     },
+  //   });
+  //   return coordinate?.findOnTask?.quest.authorId;
+  // }  
 
   async clearCoordinates(taskId: string): Promise<void> {
     await this.prisma.coordinate.deleteMany({ where: { findOnTaskId: taskId } });

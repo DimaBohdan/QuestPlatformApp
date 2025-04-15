@@ -1,9 +1,9 @@
 import { Injectable } from "@nestjs/common";
 import { Option, PlotNode } from "@prisma/client";
-import { CreateOptionDto } from "src/option/dto/create.option.dto";
-import { UpdateOptionDto } from "src/option/dto/update.option.dto";
-import { CreatePlotNodeDto } from "src/plot-node/dto/create.plot-node.dto";
-import { UpdatePlotNodeDto } from "src/plot-node/dto/update.plot-node.dto";
+import { CreateOptionDto } from "src/dto/create.option.dto";
+import { UpdateOptionDto } from "src/dto/update.option.dto";
+import { CreatePlotNodeDto } from "src/dto/create.plot-node.dto";
+import { UpdatePlotNodeDto } from "src/dto/update.plot-node.dto";
 import { PrismaService } from "src/prisma/prisma.service";
 
 @Injectable()

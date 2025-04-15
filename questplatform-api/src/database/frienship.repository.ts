@@ -1,6 +1,6 @@
 import { Injectable } from "@nestjs/common";
 import { Friendship, Option, Status } from "@prisma/client";
-import { UpdateOptionDto } from "src/option/dto/update.option.dto";
+import { UpdateOptionDto } from "src/dto/update.option.dto";
 import { PrismaService } from "src/prisma/prisma.service";
 
 @Injectable()

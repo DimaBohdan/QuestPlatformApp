@@ -1,12 +1,29 @@
 import { Injectable } from "@nestjs/common";
 import { UserAnswer, UserQuestProgress } from "@prisma/client";
 import { PrismaService } from "src/prisma/prisma.service";
-import { UserAnswerDTO } from "src/user-answer/dto/answer.dto";
+import { UserAnswerDTO } from "src/dto/answer.dto";
+import { UserAnswerWithOptions } from "utils/types/userAnswerWithOptions";
 
 @Injectable()
 export class UserAnswerRepository {
   constructor(private readonly prisma: PrismaService) {}
   
+  async getUserAnswer(progressId: string, taskId: string): Promise<UserAnswerWithOptions | null> {
+    return await this.prisma.userAnswer.findFirst({
+      where: {
+        progressId,
+        taskId,
+      },
+      include: {
+        selectedOptions: {
+          include: {
+            option: true,
+          },
+        },
+      },
+    });
+  }
+
   async create(progressId: string, taskId: string, answer: UserAnswerDTO): Promise<UserAnswer> {
     return await this.prisma.userAnswer.create({
       data: {
