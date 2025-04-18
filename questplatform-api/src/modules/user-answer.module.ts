@@ -6,7 +6,7 @@ import { QuestTaskModule } from 'src/modules/quest-task.module';
 import { PrismaModule } from 'src/prisma/prisma.module';
 import { QuestRunModule } from 'src/modules/quest-run.module';
 import { UserQuestProgressModule } from 'src/modules/user-quest-progress.module';
-import { QuestTaskTypeRegistry } from 'utils/strategies/quest-task-type.pool';
+import { QuestTaskTypeRegistry } from 'utils/strategies/quest-task-type.registry';
 import { SingleChoiceAnswerModule } from 'src/modules/single-choice-answer.module';
 import { MultipleChoiceAnswerModule } from 'src/modules/multiple-choice-answer.module';
 import { TextFieldAnswerModule } from 'src/modules/text-field-answer.module';

@@ -24,6 +24,21 @@ export class UserAnswerRepository {
     });
   }
 
+  async getAnswersByRun(runId: string): Promise<UserAnswer[]> {
+    return await this.prisma.userAnswer.findMany({
+      where: {
+        progress : { runId }
+      },
+      include: {
+        selectedOptions: {
+          include: {
+            option: true,
+          },
+        },
+      },
+    });
+  }
+
   async create(progressId: string, taskId: string, answer: UserAnswerDTO): Promise<UserAnswer> {
     return await this.prisma.userAnswer.create({
       data: {
@@ -44,6 +59,11 @@ export class UserAnswerRepository {
         selectedOptions: true,
       },
     });
+  }
+
+  async getAnswersByTask(taskId: string): Promise<UserAnswer[]> {
+    const answers = await this.prisma.userAnswer.findMany({ where: { taskId } });
+    return answers;
   }
 
   async getAnsweredUserIds(runId: string, taskId: string): Promise<string[]> {

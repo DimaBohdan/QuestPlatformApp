@@ -16,9 +16,9 @@ export class SingleChoiceAnswerService implements IUserAnswerService {
     return Array.isArray(answer.selectedOptions) && answer.selectedOptions.length === 1;
   }
 
-  async checkAnswer(runId: string, userId: string, taskId: string): Promise<boolean> {
-    const progress = await this.userQuestProgressService.findProgress(runId, userId);
-    const answer = await this.userAnswerService.getUserAnswer(progress.id, taskId);
+  async checkAnswer(progressId: string, taskId: string): Promise<boolean> {
+    await this.userQuestProgressService.findProgressById(progressId);
+    const answer = await this.userAnswerService.getUserAnswer(progressId, taskId);
     const selectedOption = answer.selectedOptions[0];
     const isCorrect = selectedOption.option.isCorrect ?? false;
     return isCorrect ? true: false;
