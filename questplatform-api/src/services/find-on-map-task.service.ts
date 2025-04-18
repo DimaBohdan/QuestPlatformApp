@@ -13,11 +13,11 @@ export class FindOnMapTaskService implements IQuestServiceTask {
 
   async saveTask(taskId: string): Promise<QuestTask> {
     const coordinate = await this.coordinateService.getCoordinateByTask(taskId);
-    if (
+    if (!(
         coordinate.positionX < -90 || coordinate.positionY < -180 || 
         coordinate.positionX > 90 || coordinate.positionY > 180 ||
         coordinate.radius >= 0
-    ) {
+    )) {
         throw new BadRequestException('Coordinate is out of bounds');
     }
     return await this.taskService.saveTask(taskId);

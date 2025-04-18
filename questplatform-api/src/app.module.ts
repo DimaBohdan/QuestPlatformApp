@@ -17,12 +17,9 @@ import { UserQuestProgressModule } from './modules/user-quest-progress.module';
 import { UserAnswerModule } from './modules/user-answer.module';
 import { QuestTaskService } from './services/quest-task.service';
 import { OptionModule } from './modules/option.module';
-import { QuestGateway } from './gateway/quest.gateway';
 import { QuestViewModule } from './modules/quest-view.module';
 import { MultipleChoiceTaskModule } from './modules/multiple-choice-task.module';
-import { TaskCleanerFactory } from './gateway/task-cleaner.factory';
 import { ChoiceCleaner } from 'utils/task-cleaner/choice-cleaner';
-import { DefaultCleaner } from 'utils/task-cleaner/text-cleaner';
 import { TextFieldTaskModule } from './modules/text-field-task.module';
 import { FindOnPictureTaskModule } from './modules/find-on-picture-task.module';
 import { CoordinateModule } from './modules/coordinate.module';
@@ -36,10 +33,15 @@ import { SingleChoiceAnswerModule } from './modules/single-choice-answer.module'
 import { MultipleChoiceAnswerModule } from './modules/multiple-choice-answer.module';
 import { TextFieldAnswerModule } from './modules/text-field-answer.module';
 import { CoordinateAnswerModule } from './modules/coordinate-answer.module';
+import { QuestReviewModule } from './modules/quest-review.module';
+import { TaskCleanerRegistry } from 'utils/strategies/task-cleaner.registry';
+import { CoordinateCleaner } from 'utils/task-cleaner/coordinate-cleaner';
+import { TextCleaner } from 'utils/task-cleaner/text-cleaner';
+import { EventEmitterModule } from '@nestjs/event-emitter';
 
 
 @Module({
-  imports: [AuthModule, UserModule, PrismaModule, QuestModule, MediaModule, SingleChoiceTaskModule, QuestTaskModule, UserQuestProgressModule, UserAnswerModule, OptionModule, QuestViewModule, MultipleChoiceTaskModule, TextFieldTaskModule, FindOnPictureTaskModule, CoordinateModule, FindOnMapTaskModule, InteractivePlotTaskModule, PlotNodeModule, FriendshipModule, QuestRunModule, TaskTimerModule, SingleChoiceAnswerModule, MultipleChoiceAnswerModule, TextFieldAnswerModule, CoordinateAnswerModule],
+  imports: [EventEmitterModule.forRoot(), AuthModule, UserModule, PrismaModule, QuestModule, MediaModule, SingleChoiceTaskModule, QuestTaskModule, UserQuestProgressModule, UserAnswerModule, OptionModule, QuestViewModule, MultipleChoiceTaskModule, TextFieldTaskModule, FindOnPictureTaskModule, CoordinateModule, FindOnMapTaskModule, InteractivePlotTaskModule, PlotNodeModule, FriendshipModule, QuestRunModule, TaskTimerModule, SingleChoiceAnswerModule, MultipleChoiceAnswerModule, TextFieldAnswerModule, CoordinateAnswerModule, QuestReviewModule],
   controllers: [],
   providers: [{
     provide: APP_GUARD,
@@ -52,10 +54,10 @@ import { CoordinateAnswerModule } from './modules/coordinate-answer.module';
   UserService,
   UserQuestProgressService,
   QuestTaskService,
-  QuestGateway,
-  TaskCleanerFactory,
   ChoiceCleaner,
-  DefaultCleaner,
+  TaskCleanerRegistry,
+  CoordinateCleaner,
+  TextCleaner,
 ],
 })
 export class AppModule {}

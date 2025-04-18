@@ -14,6 +14,11 @@ export class UserQuestProgressRepository {
       }
     });
   }
+  async findProgressById(progressId: string): Promise<UserQuestProgress | null> {
+    return await this.prisma.userQuestProgress.findFirst({
+      where: { id: progressId },
+    });
+  }
 
   async findProgress(userId: string, runId: string): Promise<UserQuestProgress | null> {
     return await this.prisma.userQuestProgress.findFirst({
@@ -25,5 +30,12 @@ export class UserQuestProgressRepository {
     return await this.prisma.userQuestProgress.findMany({
       where: { runId },
     });
+  }
+
+  async updateScore(progressId: string, score: number): Promise<UserQuestProgress> {
+    return await this.prisma.userQuestProgress.update({
+      where: { id: progressId },
+      data: { score },
+    })
   }
 }

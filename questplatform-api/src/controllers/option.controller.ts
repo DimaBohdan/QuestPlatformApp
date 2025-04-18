@@ -13,7 +13,7 @@ export class OptionController {
   @ApiOperation({ summary: 'Create new option' })
   @ApiParam({ name: 'taskId', description: 'Task ID' })
   @ApiBody({ type: CreateOptionDto })
-  createOption(
+  async createOption(
     @Param('taskId') taskId: string, 
     @Body() dto: CreateOptionDto,
     @UploadedFile() file?: Express.Multer.File,
@@ -21,15 +21,15 @@ export class OptionController {
     return this.optionService.createOption(taskId, dto, file);
   }
 
-  // @Get('task/:taskId')
-  // getOptionsByTask(@Param('taskId') taskId: string) {
-  //   return this.optionService.getOptionsByTask(taskId);
-  // }
+  @Get('task/:taskId')
+  getOptionsByTask(@Param('taskId') taskId: string) {
+    return this.optionService.getOptionsByTask(taskId);
+  }
 
   @Get(':id')
   @ApiOperation({ summary: 'Get option by id' })
   @ApiParam({ name: 'id', description: 'Option ID' })
-  getOption(@Param('id') id: string) {
+  async getOption(@Param('id') id: string) {
     return this.optionService.getOptionById(id);
   }
 
@@ -37,7 +37,7 @@ export class OptionController {
   @ApiOperation({ summary: 'Update option by id' })
   @ApiParam({ name: 'id', description: 'Option ID' })
   @ApiBody({ type: UpdateOptionDto })
-  updateOption(
+  async updateOption(
     @Param('id') id: string, 
     @Body() dto: UpdateOptionDto,
     @UploadedFile() file?: Express.Multer.File,
@@ -48,7 +48,7 @@ export class OptionController {
   @Delete(':id')
   @ApiOperation({ summary: 'Delete option by id' })
   @ApiParam({ name: 'id', description: 'Option ID' })
-  deleteOption(@Param('id') id: string) {
+  async deleteOption(@Param('id') id: string) {
     return this.optionService.deleteOption(id);
   }
 }

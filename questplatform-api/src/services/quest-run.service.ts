@@ -1,11 +1,12 @@
 import { BadRequestException, ForbiddenException, forwardRef, Inject, Injectable, NotFoundException } from "@nestjs/common";
-import { QuestRun, QuestRunStatus, QuestStatus, QuestTask } from "@prisma/client";
+import { QuestRun, QuestRunStatus, QuestStatus, QuestTask, UserQuestProgress } from "@prisma/client";
 import { QuestRunRepository } from "src/database/quest-run.repository";
 import { QuestTaskService } from "src/services/quest-task.service";
 import { QuestService } from "src/services/quest.service";
 import { TaskTimerService } from "src/services/task-timer.service";
 import { UserQuestProgressService } from "src/services/user-quest-progress.service";
 import { QuestRunGateway } from "../gateway/quest-run.gateway";
+import { LeaderboardItemDto } from "src/dto/leaderboard-item";
 
 @Injectable()
 export class QuestRunService {
@@ -56,6 +57,23 @@ export class QuestRunService {
     return result;
   }
 
+  async completeRun(runId: string): Promise<QuestRun> {
+    const run = await this.getQuestRunById(runId);
+    if (run.status == QuestRunStatus.COMPLETED) {
+      throw new BadRequestException('Quest has already finished');
+    }
+    this.questRunGateway.sendQuestCompleted(runId);
+    return await this.questRunRepository.completeRun(runId);
+  }
+
+  async getLeaderboard(runId: string): Promise<LeaderboardItemDto[]> {
+    const runs = await this.userQuestProgressService.findProgressByRun(runId);
+    return runs.map(run => ({
+      userId: run.userId,
+      score: run.score,
+    }));  
+  }
+
   async getCurrentTask(runId: string, userId: string): Promise<QuestTask> {
     await this.userQuestProgressService.findProgress(runId, userId);
     const run = await this.getQuestRunById(runId);
@@ -69,7 +87,6 @@ export class QuestRunService {
     const nextIndex = run.currentTaskIndex + 1;
     const nextTask = await this.taskService.findTaskByIndex(run.questId, nextIndex);
     if (!nextTask) {
-      this.questRunGateway.sendQuestCompleted(runId);
       return this.completeRun(runId);
     }
     const updatedRun = await this.questRunRepository.processNextTask(runId);
@@ -82,10 +99,6 @@ export class QuestRunService {
 
   private generateCode(): string {
     return Math.random().toString(36).substring(2, 8).toUpperCase();
-  }
-
-  async completeRun(runId: string): Promise<QuestRun> {
-    return await this.questRunRepository.completeRun(runId);
   }
 
   async getQuestRunById(runId: string): Promise<QuestRun> {

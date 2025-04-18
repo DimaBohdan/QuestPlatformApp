@@ -35,6 +35,13 @@ export class QuestTaskRepository {
     })
   }
 
+  async handleUpdate(taskId: string): Promise<void> {
+    await this.prisma.questTask.update({
+      where: { id: taskId },
+      data: { isFinalized: false },
+    });
+  }
+
   async create(questId: string, order: number, data: CreateBaseQuestTaskDto): Promise<QuestTask> {
     return this.prisma.$transaction(async (prisma) => {
       const task = await prisma.questTask.create({
