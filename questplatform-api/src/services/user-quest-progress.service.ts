@@ -36,7 +36,7 @@ export class UserQuestProgressService {
   }
 
   async createProgress(runId: string, userId: string): Promise<UserQuestProgress> {
-    const progress = await this.findProgress(runId, userId);
+    const progress = await this.progressRepository.findProgress(userId, runId);
     if (progress) {
       throw new BadRequestException('Already existing user progress');
     }
@@ -47,11 +47,24 @@ export class UserQuestProgressService {
     return await this.progressRepository.findProgressByRun(runId);
   }
 
+  async findProgressById(progressId: string): Promise<UserQuestProgress> {
+    const progress = await this.progressRepository.findProgressById(progressId);
+    if (!progress) {
+      throw new NotFoundException('Progress not found');
+    }
+    return progress;
+  }
+
   async findProgress(runId: string, userId: string): Promise<UserQuestProgress> {
     const progress = await this.progressRepository.findProgress(userId, runId);
     if (!progress) {
       throw new NotFoundException('Progress not found');
     }
     return progress;
+  }
+
+  async updateScore(progressId: string, score: number): Promise<void> {
+    const progress = await this.findProgressById(progressId);
+    await this.progressRepository.updateScore(progressId, score);
   }
 }
