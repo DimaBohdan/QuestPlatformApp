@@ -1,11 +1,12 @@
 import { Injectable } from "@nestjs/common";
-import { OptionService } from "src/option/option.service";
+import { CoordinateService } from "src/services/coordinate.service";
+import { ITaskCleanerService } from "utils/interfaces/task-cleaner-service.interface";
 
 @Injectable()
-export class ChoiceCleaner implements TaskCleaner {
-  constructor(private optionService: OptionService) {}
+export class ChoiceCleaner implements ITaskCleanerService{
+  constructor(private coordinateService: CoordinateService) {}
 
   async clear(taskId: string): Promise<void> {
-    await this.optionService.clearOptions(taskId);
+    await this.coordinateService.clearCoordinates(taskId);
   }
 }

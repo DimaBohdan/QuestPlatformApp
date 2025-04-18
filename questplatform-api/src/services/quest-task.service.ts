@@ -5,7 +5,8 @@ import { QuestTaskRepository } from 'src/database/task.repository';
 import { QuestService } from 'src/services/quest.service';
 import { UpdateQuestTaskDto } from '../dto/update.quest-task.dto';
 import { CreateBaseQuestTaskDto } from '../dto/create.base-quest-task.dto';
-import { TaskCleanerRegistry } from 'utils/strategies/task-cleaner.pool';
+import { TaskCleanerRegistry } from 'utils/strategies/task-cleaner.registry';
+import { EventEmitter2, OnEvent } from '@nestjs/event-emitter';
 
 @Injectable()
 export class QuestTaskService {
@@ -14,7 +15,9 @@ export class QuestTaskService {
     @Inject(forwardRef(() => QuestService))
     private questService: QuestService,
     private mediaService: MediaService,
+    @Inject(forwardRef(() => TaskCleanerRegistry))
     private taskCleanerRegistry: TaskCleanerRegistry,
+    private eventEmitter: EventEmitter2,
   ) {}
 
   async findTaskById(id: string): Promise<QuestTask> {
@@ -25,11 +28,8 @@ export class QuestTaskService {
     return task;
   }
 
-  async findTaskByIndex(questId: string, index: number): Promise<QuestTask> {
+  async findTaskByIndex(questId: string, index: number): Promise<QuestTask | null> {
     const task = await this.taskRepository.findTaskByIndex(questId, index);
-    if (!task) {
-      throw new NotFoundException('Task not found');
-    }
     return task;
   }
 
@@ -49,12 +49,22 @@ export class QuestTaskService {
     if (!result) {
       throw new NotFoundException('Task not found');
     }
+    this.eventEmitter.emit('tasks.change', { questId });
     return result;
   }
 
   async saveTask(taskId: string): Promise<QuestTask> {
     await this.findTaskById(taskId);
     return await this.taskRepository.save(taskId);
+  }
+
+  @OnEvent('task.structure-updated')
+  async handleTaskUpdate({ taskId }: { taskId: string }): Promise<void> {
+    const task = await this.findTaskById(taskId);
+    if (task.isFinalized) {
+      this.eventEmitter.emit('tasks.change', { questId: task.questId });
+      return this.taskRepository.handleUpdate(taskId);
+    }
   }
 
   async updateTaskOrder(id: string, order: number): Promise<void> {
@@ -88,6 +98,7 @@ export class QuestTaskService {
   async deleteTask(id: string): Promise<QuestTask> {
     const task = await this.findTaskById(id);
     const quest = await this.questService.findQuestById(task.questId);
+    this.eventEmitter.emit('tasks.change', { questId: quest.id });
     return this.taskRepository.deleteById(id, quest.id);
   }
 }
