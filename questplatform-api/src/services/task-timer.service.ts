@@ -12,7 +12,6 @@ export class TaskTimerService {
 
   setTimer(runId: string, taskIndex: number, durationMs: number): void {
     const key = this.buildKey(runId, taskIndex);
-
     const timeout = setTimeout(async () => {
       await this.handleTimeout(runId, taskIndex);
     }, durationMs);
