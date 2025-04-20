@@ -9,7 +9,6 @@ import { MediaModule } from 'src/modules/media.module';
 import { QuestTaskModule } from 'src/modules/quest-task.module';
 import { UserQuestProgressModule } from 'src/modules/user-quest-progress.module';
 import { UserAnswerModule } from 'src/modules/user-answer.module';
-import { QuestGateway } from '../gateway/quest.gateway';
 
 @Module({
   imports: [PrismaModule, AuthModule, MediaModule, forwardRef(() => QuestTaskModule), UserQuestProgressModule, UserAnswerModule],

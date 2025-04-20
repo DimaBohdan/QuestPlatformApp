@@ -5,11 +5,9 @@ import { Category, Quest, QuestStatus, User } from '@prisma/client';
 import { UpdateQuestDto } from '../dto/quest.update.dto';
 import { MediaService } from 'src/services/media.service';
 import { QuestTaskService } from 'src/services/quest-task.service';
-import { UserQuestProgressService } from 'src/services/user-quest-progress.service';
-import { UserAnswerService } from 'src/services/user-answer.service';
-import { QuestGateway } from '../gateway/quest.gateway';
 import { QuestSortField } from '../enums/QuestSortField.enum';
 import { QuestSortOrder } from '../enums/QuestSortOrder.enum';
+import { OnEvent } from '@nestjs/event-emitter';
 
 
 @Injectable()
@@ -82,6 +80,20 @@ export class QuestService {
     return this.questRepository.delete(id);
   }
 
+  @OnEvent('tasks.change')
+  async validateAndSetDraftStatus({ questId }: { questId: string }): Promise<Quest | undefined> {
+    const quest = await this.findQuestById(questId);
+    const tasks = await this.questTaskService.findTasksByQuest(questId);
+    if (quest.taskQuantity < 1 && tasks.some(task => !task.isFinalized)) {
+      return await this.questRepository.setStatus(questId, QuestStatus.DRAFT);
+    }
+  }
+
+  async setQuestDraft(id: string): Promise<Quest> {
+    await this.findQuestById(id);
+    return await this.questRepository.setStatus(id, QuestStatus.DRAFT);
+  }
+
   async setQuestReady(id: string): Promise<Quest> {
     const quest = await this.findQuestById(id);
     const tasks = await this.questTaskService.findTasksByQuest(id);
@@ -92,6 +104,7 @@ export class QuestService {
   }
 
   async setQuestPublished(id: string): Promise<Quest> {
+    await this.setQuestReady(id);
     const quest = await this.findQuestById(id);
     if (quest.quest_status !== QuestStatus.READY) {
       throw new BadRequestException('Quest must be ready to publish it!');

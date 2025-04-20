@@ -196,9 +196,10 @@ enum QuestTaskType {
 model UserQuestProgress {
   id         String   @id @default(uuid())
   userId     String
-  user           User   @relation(fields: [userId], references: [id], onDelete: Cascade)
+  user       User     @relation(fields: [userId], references: [id], onDelete: Cascade)
   runId      String
-  run        QuestRun   @relation(fields: [runId], references: [id], onDelete: Cascade)
+  run        QuestRun @relation(fields: [runId], references: [id], onDelete: Cascade)
+  score      Int?
 
   answers     UserAnswer[]
 }

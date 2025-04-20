@@ -38,24 +38,6 @@ export class QuestController {
     return this.questService.getAllPublishedQuests({ title, category, difficulty }, { sortBy, sortOrder });
   }
 
-  // @Public()
-  // @Get('ready')
-  // @ApiOperation({ summary: 'Get all ready quests' })
-  // @ApiQuery({ name: 'title', required: false, description: 'Filter by quest title' })
-  // @ApiQuery({ name: 'category', required: false, description: 'Filter by quest category' })
-  // @ApiQuery({ name: 'difficulty', required: false, description: 'Filter by quest difficulty', type: Number })
-  // @ApiQuery({ name: 'sortBy', required: false, enum: QuestSortField, description: 'Sort by parameters' })
-  // @ApiQuery({ name: 'sortOrder', required: false, enum: QuestSortOrder, description: 'Choose sortOrder' })
-  // async getAllReadyQuests(
-  //   @Query('title') title?: string,
-  //   @Query('category') category?: Category,
-  //   @Query('difficulty') difficulty?: number,
-  //   @Query('sortBy') sortBy?: QuestSortField,
-  //   @Query('sortOrder') sortOrder?: QuestSortOrder,
-  // ): Promise<Quest[]> {
-  //   return this.questService.getAllReadyQuests({ title, category, difficulty }, { sortBy, sortOrder });
-  // }
-
   @Get('/my')
   @ApiOperation({ summary: 'Get quests created by user' })
   @ApiQuery({ name: 'title', required: false, description: 'Filter by quest title' })
@@ -84,7 +66,6 @@ export class QuestController {
     return this.questService.getMyReadyQuests(req.user.id, { title, category, difficulty });
   }
 
-  @Public()
   @Get(':id')
   @ApiOperation({ summary: 'Get quest by id' })
   @ApiParam({ name: 'id', description: 'Quest ID' })
@@ -120,6 +101,39 @@ export class QuestController {
     const quest = await this.questService.findQuestById(id);
     forbiddenError.throwUnlessCan('manage', subject('Quest', quest));
     return this.questService.updateQuest(id, data, file);
+  }
+
+  @Patch('draft/:id')
+  @ApiOperation({ summary: 'Make quest draft' })
+  async setQuestDraft(
+    @Param('id') id: string,
+    @Req() @CaslForbiddenError() forbiddenError: CaslForbiddenErrorI
+  ): Promise<Quest> {
+    const quest = await this.questService.findQuestById(id);
+    forbiddenError.throwUnlessCan('manage', subject('Quest', quest));
+    return this.questService.setQuestDraft(id);
+  }
+
+  @Patch('ready/:id')
+  @ApiOperation({ summary: 'Make quest ready' })
+  async setQuestReady(
+    @Param('id') id: string,
+    @Req() @CaslForbiddenError() forbiddenError: CaslForbiddenErrorI
+  ): Promise<Quest> {
+    const quest = await this.questService.findQuestById(id);
+    forbiddenError.throwUnlessCan('manage', subject('Quest', quest));
+    return this.questService.setQuestReady(id);
+  }
+
+  @Patch('public/:id')
+  @ApiOperation({ summary: 'Publish quest' })
+  async setQuestPublished(
+    @Param('id') id: string,
+    @Req() @CaslForbiddenError() forbiddenError: CaslForbiddenErrorI
+  ): Promise<Quest> {
+    const quest = await this.questService.findQuestById(id);
+    forbiddenError.throwUnlessCan('manage', subject('Quest', quest));
+    return this.questService.setQuestPublished(id);
   }
 
   @Delete(':id')

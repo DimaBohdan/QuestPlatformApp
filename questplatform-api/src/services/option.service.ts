@@ -5,6 +5,7 @@ import { UpdateOptionDto } from "src/dto/update.option.dto";
 import { OptionRepository } from "src/database/option.repository";
 import { QuestTaskService } from "src/services/quest-task.service";
 import { MediaService } from "src/services/media.service";
+import { EventEmitter2 } from "@nestjs/event-emitter";
 
 @Injectable()
 export class OptionService {
@@ -13,6 +14,7 @@ export class OptionService {
     @Inject(forwardRef(() => QuestTaskService)) 
     private readonly questTaskService: QuestTaskService,
     private readonly mediaService: MediaService,
+    private readonly eventEmitter: EventEmitter2,
   ) {}
 
   async createOption(id: string, dto: CreateOptionDto, file?: Express.Multer.File): Promise<Option> {
@@ -21,7 +23,9 @@ export class OptionService {
       await this.mediaService.uploadImage(file, {'optionId': id})
     }
     if (task.type == QuestTaskType.SINGLE_CHOICE || task.type == QuestTaskType.MULTIPLE_CHOICE) {
-      return await this.optionRepository.createOption(id, dto);
+      const option = await this.optionRepository.createOption(id, dto);
+      this.eventEmitter.emit('task.structure-updated', { taskId: option.taskId });
+      return option;
     }
     else {
       throw new BadRequestException('Task type doesn`t support options');
@@ -34,6 +38,11 @@ export class OptionService {
         throw new NotFoundException('Option not found');
     }
     return option;
+  }
+
+  async getOptionsByTask(taskId: string): Promise<Option[]> {
+    await this.questTaskService.findTaskById(taskId);
+    return await this.optionRepository.getOptionsByTask(taskId);
   }
 
   async getCorrectAnswers(taskId: string): Promise<Option[]> {
@@ -49,14 +58,19 @@ export class OptionService {
     if (file) {
       await this.mediaService.uploadImage(file, {'optionId': id})
     }
-    return this.optionRepository.updateOption(id, dto);
+    const option = await this.optionRepository.updateOption(id, dto);
+    this.eventEmitter.emit('task.structure-updated', { taskId: option.taskId });
+    return option;
   }
 
   async clearOptions(taskId: string): Promise<void> {
+    this.eventEmitter.emit('task.structure-updated', { taskId });
     return this.optionRepository.clearOptions(taskId);
   }
 
   async deleteOption(id: string): Promise<Option> {
-    return this.optionRepository.deleteOption(id);
+    const option = await this.optionRepository.deleteOption(id);
+    this.eventEmitter.emit('task.structure-updated', { taskId: option.taskId });
+    return option;
   }
 }

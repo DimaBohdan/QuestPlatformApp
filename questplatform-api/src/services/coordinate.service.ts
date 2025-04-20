@@ -4,15 +4,19 @@ import { QuestTaskService } from 'src/services/quest-task.service';
 import { CreateCoordinateDto } from '../dto/coordinate.create.dto';
 import { Coordinate } from '@prisma/client';
 import { UpdateCoordinateDto } from '../dto/coordinate.update.dto';
+import { EventEmitter2 } from '@nestjs/event-emitter';
 
 @Injectable()
 export class CoordinateService {
   constructor(
     private readonly coordinateRepository: CoordinateRepository,
+    private readonly eventEmitter: EventEmitter2
   ) {}
 
   async createCoordinate(id: string, dto: CreateCoordinateDto): Promise<Coordinate> {
-    return this.coordinateRepository.createCoordinate(id, dto);
+    const coordinate = await this.coordinateRepository.createCoordinate(id, dto);
+    this.eventEmitter.emit('task.structure-updated', { taskId: coordinate.findOnTaskId });
+    return coordinate;
   }
 
   async getCoordinateByTask(taskId: string): Promise<Coordinate> {
@@ -31,14 +35,19 @@ export class CoordinateService {
   }
 
   async updateCoordinare(id: string, dto: UpdateCoordinateDto): Promise<Coordinate> {
-    return this.coordinateRepository.updateCoordinate(id, dto);
+    const coordinate = await this.coordinateRepository.updateCoordinate(id, dto);
+    this.eventEmitter.emit('task.structure-updated', { taskId: coordinate.findOnTaskId });
+    return coordinate;
   }
 
   async clearCoordinates(taskId: string): Promise<void> {
+    this.eventEmitter.emit('task.structure-updated', { taskId });
     return this.coordinateRepository.clearCoordinates(taskId);
   }
 
   async deleteCoordinate(id: string): Promise<Coordinate> {
-    return this.coordinateRepository.deleteCoordinate(id);
+    const coordinate = await this.coordinateRepository.deleteCoordinate(id);
+    this.eventEmitter.emit('task.structure-updated', { taskId: coordinate.findOnTaskId });
+    return coordinate;
   }
 }
