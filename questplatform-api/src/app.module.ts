@@ -3,7 +3,7 @@ import { AuthModule } from './modules/auth.module';
 import { UserService } from './services/user.service';
 import { UserController } from './controllers/user.controller';
 import { UserModule } from './modules/user.module';
-import { APP_GUARD } from '@nestjs/core';
+import { APP_GUARD, APP_INTERCEPTOR } from '@nestjs/core';
 import { JwtAuthGuard } from 'utils/guards/jwt.guard';
 import { RolesGuard } from 'utils/guards/roles.guard';
 import { AuthController } from './controllers/auth.controller';
@@ -37,15 +37,30 @@ import { QuestReviewModule } from './modules/quest-review.module';
 import { TaskCleanerRegistry } from 'utils/strategies/task-cleaner.registry';
 import { CoordinateCleaner } from 'utils/task-cleaner/coordinate-cleaner';
 import { TextCleaner } from 'utils/task-cleaner/text-cleaner';
+import { CacheModule, CacheInterceptor, CACHE_MANAGER } from '@nestjs/cache-manager';
+import * as redisStore from 'cache-manager-ioredis';
 import { EventEmitterModule } from '@nestjs/event-emitter';
 
 
 @Module({
-  imports: [EventEmitterModule.forRoot(), AuthModule, UserModule, PrismaModule, QuestModule, MediaModule, SingleChoiceTaskModule, QuestTaskModule, UserQuestProgressModule, UserAnswerModule, OptionModule, QuestViewModule, MultipleChoiceTaskModule, TextFieldTaskModule, FindOnPictureTaskModule, CoordinateModule, FindOnMapTaskModule, InteractivePlotTaskModule, PlotNodeModule, FriendshipModule, QuestRunModule, TaskTimerModule, SingleChoiceAnswerModule, MultipleChoiceAnswerModule, TextFieldAnswerModule, CoordinateAnswerModule, QuestReviewModule],
+  imports: [CacheModule.registerAsync({
+    isGlobal: true,
+    useFactory: () => ({
+      store: redisStore,
+      host: 'localhost',
+      port: 6379,
+      ttl: 60,
+    }),
+  }),
+  EventEmitterModule.forRoot(), AuthModule, UserModule, PrismaModule, QuestModule, MediaModule, SingleChoiceTaskModule, QuestTaskModule, UserQuestProgressModule, UserAnswerModule, OptionModule, QuestViewModule, MultipleChoiceTaskModule, TextFieldTaskModule, FindOnPictureTaskModule, CoordinateModule, FindOnMapTaskModule, InteractivePlotTaskModule, PlotNodeModule, FriendshipModule, QuestRunModule, TaskTimerModule, SingleChoiceAnswerModule, MultipleChoiceAnswerModule, TextFieldAnswerModule, CoordinateAnswerModule, QuestReviewModule],
   controllers: [],
   providers: [{
     provide: APP_GUARD,
     useClass: JwtAuthGuard,
+  },
+  {
+    provide: APP_INTERCEPTOR,
+    useClass: CacheInterceptor,
   },
   {
     provide: APP_GUARD,
