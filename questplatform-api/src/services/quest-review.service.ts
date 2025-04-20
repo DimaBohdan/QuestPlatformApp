@@ -4,6 +4,8 @@ import { QuestReviewRepository } from 'src/database/quest-review.repository';
 import { CreateQuestReviewDto } from 'src/dto/create.quest-review.dto';
 import { QuestService } from './quest.service';
 import { UpdateQuestReviewDto } from 'src/dto/update.quest-review.dto';
+import { Log } from 'utils/decorators/log.decorator';
+import { LogLevel } from 'src/enums/LogLevel.enum';
 
 @Injectable()
 export class QuestReviewService {
@@ -12,6 +14,7 @@ export class QuestReviewService {
     private readonly questService: QuestService,
   ) {}
 
+  @Log(LogLevel.INFO)
   async create(questId: string, userId: string, dto: CreateQuestReviewDto): Promise<QuestReview> {
     await this.questService.findQuestById(questId);
     return await this.questReviewRepository.create(questId, userId, dto);
