@@ -1,5 +1,6 @@
 import * as fs from 'fs';
 import * as path from 'path';
+import { LogLevel } from 'src/enums/LogLevel.enum';
 import { LogEntry } from 'utils/interfaces/log-entry.interface';
 import { LoggerOptions } from 'utils/interfaces/logger.options';
 
@@ -7,6 +8,9 @@ export class LoggerService {
   constructor(private options: LoggerOptions = { toConsole: true, toFile: false, structured: false }) {}
 
   log(entry: LogEntry) {
+    if (entry.level === LogLevel.ERROR && !entry.error) {
+      return;
+    }
     const formatted = this.options.structured
       ? JSON.stringify(entry)
       : this.options.formatter?.(entry) ?? this.defaultFormatter(entry);

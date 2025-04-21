@@ -16,16 +16,14 @@ export function Log(level: LogLevel = LogLevel.INFO, logger = defaultLogger): Me
       const start = Date.now();
       try {
         const result = await originalMethod.apply(this, args);
-        if (level !== LogLevel.ERROR) {
-          logger.log({
-            timestamp: new Date().toISOString(),
-            level,
-            functionName,
-            args,
-            returnValue: result,
-            executionTimeMs: Date.now() - start,
-          });
-        }
+        logger.log({
+          timestamp: new Date().toISOString(),
+          level,
+          functionName,
+          args,
+          returnValue: result,
+          executionTimeMs: Date.now() - start,
+        });
         return result;
       } catch (error) {
         logger.log({
@@ -42,3 +40,4 @@ export function Log(level: LogLevel = LogLevel.INFO, logger = defaultLogger): Me
     return descriptor;
   };
 }
+
