@@ -5,6 +5,7 @@ const defaultLogger = new LoggerService({
   toConsole: false,
   toFile: true,
   structured: false,
+  level: LogLevel.INFO,
 });
 
 export function Log(level: LogLevel = LogLevel.INFO, logger = defaultLogger): MethodDecorator {
@@ -40,4 +41,3 @@ export function Log(level: LogLevel = LogLevel.INFO, logger = defaultLogger): Me
     return descriptor;
   };
 }
-
