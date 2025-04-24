@@ -40,10 +40,20 @@ import { TextCleaner } from 'utils/task-cleaner/text-cleaner';
 import { CacheModule, CacheInterceptor, CACHE_MANAGER } from '@nestjs/cache-manager';
 import * as redisStore from 'cache-manager-ioredis';
 import { EventEmitterModule } from '@nestjs/event-emitter';
+import { ThrottlerGuard, ThrottlerModule } from '@nestjs/throttler';
 
 
 @Module({
-  imports: [CacheModule.registerAsync({
+  imports: [
+    ThrottlerModule.forRoot({
+      throttlers: [
+        {
+          ttl: 60,
+          limit: 10,
+        },
+      ],
+    }),
+    CacheModule.registerAsync({
     isGlobal: true,
     useFactory: () => ({
       store: redisStore,
@@ -54,7 +64,12 @@ import { EventEmitterModule } from '@nestjs/event-emitter';
   }),
   EventEmitterModule.forRoot(), AuthModule, UserModule, PrismaModule, QuestModule, MediaModule, SingleChoiceTaskModule, QuestTaskModule, UserQuestProgressModule, UserAnswerModule, OptionModule, QuestViewModule, MultipleChoiceTaskModule, TextFieldTaskModule, FindOnPictureTaskModule, CoordinateModule, FindOnMapTaskModule, InteractivePlotTaskModule, PlotNodeModule, FriendshipModule, QuestRunModule, TaskTimerModule, SingleChoiceAnswerModule, MultipleChoiceAnswerModule, TextFieldAnswerModule, CoordinateAnswerModule, QuestReviewModule],
   controllers: [],
-  providers: [{
+  providers: [
+  {
+    provide: APP_GUARD,
+    useClass: ThrottlerGuard,
+  },
+  {
     provide: APP_GUARD,
     useClass: JwtAuthGuard,
   },

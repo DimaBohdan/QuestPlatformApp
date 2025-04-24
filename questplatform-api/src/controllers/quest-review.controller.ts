@@ -2,7 +2,9 @@ import { Body, Controller, Delete, Get, Param, Patch, Post, Req } from '@nestjs/
 import { ApiBody, ApiOperation, ApiParam } from '@nestjs/swagger';
 import { CreateQuestReviewDto } from 'src/dto/create.quest-review.dto';
 import { UpdateQuestReviewDto } from 'src/dto/update.quest-review.dto';
+import { LogLevel } from 'src/enums/LogLevel.enum';
 import { QuestReviewService } from 'src/services/quest-review.service';
+import { Log } from 'utils/decorators/log.decorator';
 import { RequestWithUser } from 'utils/types/RequestWithUser';
 
 @Controller('quest-review')
@@ -22,6 +24,7 @@ export class QuestReviewController {
   }
 
   @Get('reviews/:questId')
+  @Log(LogLevel.DEBUG)
   @ApiOperation({ summary: 'Get reviews by questId' })
   getReviewsByQuest(@Param('questId') questId: string) {
     return this.questReviewService.getReviewsByQuest(questId);

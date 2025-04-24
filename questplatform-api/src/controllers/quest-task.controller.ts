@@ -1,4 +1,4 @@
-import { Body, Controller, Delete, Get, Param, ParseIntPipe, Patch, Post, Put, Req, UseGuards } from '@nestjs/common';
+import { Body, Controller, Delete, Get, Param, ParseIntPipe, Patch, Post, Put, Req, Res, UseGuards } from '@nestjs/common';
 import { Option, QuestTask } from '@prisma/client';
 import { QuestTaskService } from 'src/services/quest-task.service';
 import { UpdateQuestTaskDto } from '../dto/update.quest-task.dto';
@@ -7,6 +7,7 @@ import { CaslForbiddenError } from 'utils/decorators/casl-forbidden-error.decora
 import { AppAbility, CaslForbiddenErrorI } from 'utils/permissions/casl-rules.factory';
 import { subject } from '@casl/ability';
 import { RequestWithUser } from 'utils/types/RequestWithUser';
+import { Response } from 'express';
 
 @ApiTags('Task')
 @Controller('quest-task')
@@ -25,6 +26,14 @@ export class QuestTaskController {
   @Get(':questId/quest')
   async getTasksByQuest(@Param('questId') questId: string): Promise<QuestTask[]> {
     return this.questTaskService.findTasksByQuest(questId);
+  }
+
+  @Get('stream/:questId')
+  async streamTasks(
+    @Param('questId') questId: string,
+    @Res() res: Response,
+  ): Promise<void> {
+    return this.questTaskService.streamQuestTasks(questId, res);
   }
 
   @ApiOperation({ summary: 'Update task by Id' })

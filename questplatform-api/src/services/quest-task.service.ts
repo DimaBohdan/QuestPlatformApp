@@ -7,6 +7,7 @@ import { UpdateQuestTaskDto } from '../dto/update.quest-task.dto';
 import { CreateBaseQuestTaskDto } from '../dto/create.base-quest-task.dto';
 import { TaskCleanerRegistry } from 'utils/strategies/task-cleaner.registry';
 import { EventEmitter2, OnEvent } from '@nestjs/event-emitter';
+import { Response } from 'express';
 
 @Injectable()
 export class QuestTaskService {
@@ -65,6 +66,21 @@ export class QuestTaskService {
       this.eventEmitter.emit('tasks.change', { questId: task.questId });
       return this.taskRepository.handleUpdate(taskId);
     }
+  }
+
+  async streamQuestTasks(questId: string, res: Response): Promise<void> {
+    res.setHeader('Content-Type', 'application/json');
+    res.write('[');
+    let first = true;
+    for await (const page of this.taskRepository.getQuestTasksPaginated(questId)) {
+      for (const task of page) {
+        if (!first) res.write(',');
+        res.write(JSON.stringify(task));
+        first = false;
+      }
+    }
+    res.write(']');
+    res.end();
   }
 
   async updateTaskOrder(id: string, order: number): Promise<void> {
