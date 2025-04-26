@@ -1,6 +1,7 @@
 import { forwardRef, Inject, Injectable, NotFoundException } from "@nestjs/common";
 import { QuestTaskType } from "@prisma/client";
 import { CoordinateAnswerService } from "src/services/coordinate-answer.service";
+import { InteractivePlotAnswerService } from "src/services/interactive-plot-answer.service";
 import { MultipleChoiceAnswerService } from "src/services/multiple-choice-answer.service";
 import { SingleChoiceAnswerService } from "src/services/single-choice-answer.service";
 import { TextFieldAnswerService } from "src/services/text-field-answer.service";
@@ -15,12 +16,14 @@ export class QuestTaskTypeRegistry {
     @Inject(forwardRef(() => MultipleChoiceAnswerService)) multiChoice: IUserAnswerService,
     @Inject(forwardRef(() => TextFieldAnswerService)) textField: IUserAnswerService,
     @Inject(forwardRef(() => CoordinateAnswerService)) coordinateAnswer: IUserAnswerService,
+    @Inject(forwardRef(() => InteractivePlotAnswerService)) plotAnswer,
   ) {
     this.strategies.set(QuestTaskType.SINGLE_CHOICE, singleChoice);
     this.strategies.set(QuestTaskType.MULTIPLE_CHOICE, multiChoice);
     this.strategies.set(QuestTaskType.TEXT_FIELD, textField);
     this.strategies.set(QuestTaskType.FIND_ON_MAP, coordinateAnswer);
     this.strategies.set(QuestTaskType.FIND_ON_PICTURE, coordinateAnswer);
+    this.strategies.set(QuestTaskType.INTERACTIVE_PLOT, plotAnswer);
   }
 
   getStrategy(type: QuestTaskType): IUserAnswerService {

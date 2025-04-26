@@ -1,57 +1,61 @@
-// import { Injectable } from '@nestjs/common';
-// import { PlotNodeRepository } from 'src/database/plot-node.repository';
-// import { QuestTaskService } from 'src/quest-task/quest-task.service';
-// import { CreatePlotNodeDto } from './dto/create.plot-node.dto';
+import { BadRequestException, forwardRef, Inject, Injectable, NotFoundException } from '@nestjs/common';
+import { PlotNodeRepository } from 'src/database/plot-node.repository';
+import { QuestTaskService } from './quest-task.service';
+import { CreatePlotNodeDto } from 'src/dto/create.plot-node.dto';
+import { PlotNode, QuestTaskType } from '@prisma/client';
+import { MediaService } from './media.service';
+import { UpdatePlotNodeDto } from 'src/dto/update.plot-node.dto';
+import { EventEmitter2 } from '@nestjs/event-emitter';
 
-// @Injectable()
-// export class PlotNodeService {
-//   constructor(
-//     private readonly plotNodeRepository: PlotNodeRepository,
-//     private readonly questTaskService: QuestTaskService,
-//   ) {}
+@Injectable()
+export class PlotNodeService {
+  constructor(
+    private readonly plotNodeRepository: PlotNodeRepository,
+    @Inject(forwardRef(() => QuestTaskService))
+    private readonly questTaskService: QuestTaskService,
+    private readonly mediaService: MediaService,
+    private readonly eventEmitter: EventEmitter2
+  ) {}
 
-//   async createOption(id: string, dto: CreatePlotNodeDto, file?: Express.Multer.File): Promise<Option> {
-//     const task = await this.questTaskService.findTaskById(id);
-//     if (file) {
-//       await this.mediaService.uploadImage(file, {'optionId': id})
-//     }
-//     if (task.type == 'SINGLE_CHOICE' || task.type == 'MULTIPLE_CHOICE') {
-//       return await this.optionRepository.createOption(id, dto);
-//     }
-//     else {
-//       throw new BadRequestException('Task type doesn`t support options');
-//     }
-//   }
+  async create(id: string, dto: CreatePlotNodeDto, file?: Express.Multer.File): Promise<PlotNode> {
+    const task = await this.questTaskService.findTaskById(id);
+    if (file) {
+      await this.mediaService.uploadImage(file, {'optionId': id})
+    }
+    if (task.type == QuestTaskType.INTERACTIVE_PLOT) {
+      return await this.plotNodeRepository.create(id, dto);
+    }
+    else {
+      throw new BadRequestException('Task type doesn`t support options');
+    }
+  }
 
-//   async getOptionById(id: string): Promise<Option> {
-//     const option =  await this.optionRepository.getOptionById(id);
-//     if (!option) {
-//         throw new NotFoundException('Option not found');
-//     }
-//     return option;
-//   }
+  async getPlotNodeById(id: string): Promise<PlotNode> {
+    const node =  await this.plotNodeRepository.getById(id);
+    if (!node) {
+        throw new NotFoundException('Node not found');
+    }
+    return node;
+  }
 
-//   async getCorrectAnswers(taskId: string): Promise<Option[]> {
-//     return await this.optionRepository.getCorrectAnswers(taskId);
-//   }
+  async getPlotNodesByTaskId(id: string): Promise<PlotNode[]> {
+    await this.questTaskService.findTaskById(id);
+    return await this.plotNodeRepository.getByTask(id);
+  }
 
-//   async getOptionsByTaskId(id: string): Promise<Option[]> {
-//     await this.questTaskService.findTaskById(id);
-//     return await this.optionRepository.getOptionsByTask(id);
-//   }
+  async clearNodes(taskId: string): Promise<void> {
+    this.eventEmitter.emit('task.structure-updated', { taskId });
+    return this.plotNodeRepository.clearNodes(taskId);
+  }
 
-//   async updateOption(id: string, dto: UpdateOptionDto, file?: Express.Multer.File): Promise<Option> {
-//     if (file) {
-//       await this.mediaService.uploadImage(file, {'optionId': id})
-//     }
-//     return this.optionRepository.updateOption(id, dto);
-//   }
+  async update(id: string, dto: UpdatePlotNodeDto, file?: Express.Multer.File): Promise<PlotNode> {
+    if (file) {
+      await this.mediaService.uploadImage(file, {'optionId': id})
+    }
+    return this.plotNodeRepository.update(id, dto);
+  }
 
-//   async clearOptions(taskId: string): Promise<void> {
-//     return this.optionRepository.clearOptions(taskId);
-//   }
-
-//   async deleteOption(id: string): Promise<Option> {
-//     return this.optionRepository.deleteOption(id);
-//   }
-// }
+  async delete(id: string): Promise<PlotNode> {
+    return this.plotNodeRepository.delete(id);
+  }
+}

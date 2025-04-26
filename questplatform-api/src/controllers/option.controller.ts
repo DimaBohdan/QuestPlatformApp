@@ -23,7 +23,7 @@ export class OptionController {
 
   @Get('task/:taskId')
   getOptionsByTask(@Param('taskId') taskId: string) {
-    return this.optionService.getOptionsByTask(taskId);
+    return this.optionService.getOptionsByTaskId(taskId);
   }
 
   @Get(':id')

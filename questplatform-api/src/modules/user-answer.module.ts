@@ -11,6 +11,7 @@ import { SingleChoiceAnswerModule } from 'src/modules/single-choice-answer.modul
 import { MultipleChoiceAnswerModule } from 'src/modules/multiple-choice-answer.module';
 import { TextFieldAnswerModule } from 'src/modules/text-field-answer.module';
 import { CoordinateAnswerModule } from 'src/modules/coordinate-answer.module';
+import { InteractivePlotAnswerModule } from './interactive-plot-answer.module';
 
 @Module({
   imports: [
@@ -21,7 +22,9 @@ import { CoordinateAnswerModule } from 'src/modules/coordinate-answer.module';
     forwardRef(() => SingleChoiceAnswerModule),
     forwardRef(() => MultipleChoiceAnswerModule),
     forwardRef(() => TextFieldAnswerModule),
-    forwardRef(() => CoordinateAnswerModule),],
+    forwardRef(() => CoordinateAnswerModule),
+    forwardRef(() => InteractivePlotAnswerModule),
+  ],
   providers: [UserAnswerService, UserAnswerRepository, QuestTaskTypeRegistry],
   controllers: [UserAnswerController],
   exports: [UserAnswerService, UserAnswerRepository],

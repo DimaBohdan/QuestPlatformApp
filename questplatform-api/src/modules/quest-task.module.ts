@@ -10,16 +10,18 @@ import { MediaService } from 'src/services/media.service';
 import { UserQuestProgressModule } from 'src/modules/user-quest-progress.module';
 import { UserAnswerModule } from 'src/modules/user-answer.module';
 import { OptionModule } from 'src/modules/option.module';
-import { ChoiceCleaner } from 'utils/task-cleaner/choice-cleaner';
 import { TaskCleanerRegistry } from 'utils/strategies/task-cleaner.registry';
 import { CoordinateModule } from './coordinate.module';
 import { CoordinateCleaner } from 'utils/task-cleaner/coordinate-cleaner';
 import { TextCleaner } from 'utils/task-cleaner/text-cleaner';
+import { OptionCleaner } from 'utils/task-cleaner/option-cleaner';
+import { PlotCleaner } from 'utils/task-cleaner/plot-cleaner';
+import { PlotNodeModule } from './plot-node.module';
 
 @Module({
-  imports: [PrismaModule, forwardRef(() => QuestModule), forwardRef(() => OptionModule), forwardRef(() => UserQuestProgressModule), forwardRef(() => UserAnswerModule), MediaModule, CoordinateModule],
+  imports: [PrismaModule, forwardRef(() => QuestModule), forwardRef(() => OptionModule), forwardRef(() => UserQuestProgressModule), forwardRef(() => UserAnswerModule), PlotNodeModule, MediaModule, CoordinateModule],
   controllers: [QuestTaskController],
-  providers: [QuestTaskService, QuestTaskRepository, QuestService, MediaService, ChoiceCleaner, CoordinateCleaner, TaskCleanerRegistry, TextCleaner],
+  providers: [QuestTaskService, QuestTaskRepository, QuestService, MediaService, OptionCleaner, CoordinateCleaner, TaskCleanerRegistry, TextCleaner, PlotCleaner],
   exports: [QuestTaskService, QuestTaskRepository],
 })
 export class QuestTaskModule {}

@@ -1,5 +1,5 @@
 import { BadRequestException, ConflictException, Injectable, NotFoundException } from '@nestjs/common';
-import { QuestRunStatus, QuestTask, UserAnswer } from '@prisma/client';
+import { QuestRunStatus, QuestTask, QuestTaskType, UserAnswer } from '@prisma/client';
 import { UserAnswerRepository } from 'src/database/user-answer.repository';
 import { QuestTaskService } from 'src/services/quest-task.service';
 import { UserAnswerDTO } from '../dto/answer.dto';
@@ -33,13 +33,11 @@ export class UserAnswerService {
 
   async submitAnswer(runId: string, userId: string, taskId: string, answer: UserAnswerDTO): Promise<UserAnswer> {
     await this.validateAnswer(taskId, answer);
-
     const progress = await this.userQuestProgressService.findProgress(runId, userId);
     const existingAnswer = await this.userAnswerRepository.getUserAnswer(progress.id, taskId);
     if (existingAnswer) {
       throw new ConflictException('Answer already submitted');
     }
-
     const result = await this.userAnswerRepository.create(progress.id, taskId, answer);
     await this.questRunGateway.sendUserAnswered(runId, taskId, userId);
     await this.checkIfAllAnswered(runId, taskId);
@@ -63,6 +61,7 @@ export class UserAnswerService {
     const answers = await this.userAnswerRepository.getAnswersByRun(runId);
     for (const answer of answers) {
       const task = await this.questTaskService.findTaskById(answer.id);
+      if (task.type === QuestTaskType.INTERACTIVE_PLOT) continue;
       const checker = this.questTaskTypeRegistry.getStrategy(task.type);
       const progress = await this.userQuestProgressService.findProgressById(answer.progressId);
       if (!checker) continue;
@@ -70,23 +69,22 @@ export class UserAnswerService {
       if (isCorrect) correctCount++;
     }
     const tasks = await this.questTaskService.findTasksByQuest(run.questId);
-
+    const scorableTasks  = tasks.filter((task) => task.type !== QuestTaskType.INTERACTIVE_PLOT);
     return {
       correctCount,
       total: tasks.length,
-      score: this.calculateScorePercentage(correctCount, tasks.length),
+      score: this.calculateScorePercentage(correctCount, scorableTasks.length),
     };
   }
 
   @OnEvent('task.structure-updated')
   async recalculateTaskAnswers({ taskId }: { taskId: string }): Promise<void> {
     const task = await this.questTaskService.findTaskById(taskId);
+    if (task.type === QuestTaskType.INTERACTIVE_PLOT) return;
     const checker = this.questTaskTypeRegistry.getStrategy(task.type);
     if (!checker) return;
-
     const answers = await this.userAnswerRepository.getAnswersByTask(taskId);
     const progressMap = new Map<string, number>();
-
     for (const answer of answers) {
       const { progressId } = answer;
       const isCorrect = await checker.checkAnswer(progressId, taskId);
@@ -94,12 +92,12 @@ export class UserAnswerService {
         progressMap.set(progressId, (progressMap.get(progressId) || 0) + 1);
       }
     }
-
     for (const [progressId, correctCount] of progressMap.entries()) {
       const progress = await this.userQuestProgressService.findProgressById(progressId);
       const run = await this.questRunService.getQuestRunById(progress.runId);
-      const totalTasks = await this.questTaskService.findTasksByQuest(run.questId);
-      const score = this.calculateScorePercentage(correctCount, totalTasks.length);
+      const tasks = await this.questTaskService.findTasksByQuest(run.questId);
+      const scorableTasks  = tasks.filter((task) => task.type !== QuestTaskType.INTERACTIVE_PLOT);
+      const score = this.calculateScorePercentage(correctCount, scorableTasks.length);
       await this.userQuestProgressService.updateScore(progressId, score);
     }
   }

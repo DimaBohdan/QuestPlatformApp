@@ -40,11 +40,6 @@ export class OptionService {
     return option;
   }
 
-  async getOptionsByTask(taskId: string): Promise<Option[]> {
-    await this.questTaskService.findTaskById(taskId);
-    return await this.optionRepository.getOptionsByTask(taskId);
-  }
-
   async getCorrectAnswers(taskId: string): Promise<Option[]> {
     return await this.optionRepository.getCorrectAnswers(taskId);
   }

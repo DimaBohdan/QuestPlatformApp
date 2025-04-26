@@ -19,12 +19,10 @@ import { QuestTaskService } from './services/quest-task.service';
 import { OptionModule } from './modules/option.module';
 import { QuestViewModule } from './modules/quest-view.module';
 import { MultipleChoiceTaskModule } from './modules/multiple-choice-task.module';
-import { ChoiceCleaner } from 'utils/task-cleaner/choice-cleaner';
 import { TextFieldTaskModule } from './modules/text-field-task.module';
 import { FindOnPictureTaskModule } from './modules/find-on-picture-task.module';
 import { CoordinateModule } from './modules/coordinate.module';
 import { FindOnMapTaskModule } from './modules/find-on-map-task.module';
-import { InteractivePlotTaskModule } from './modules/interactive-plot-task.module';
 import { PlotNodeModule } from './modules/plot-node.module';
 import { FriendshipModule } from './modules/friendship.module';
 import { QuestRunModule } from './modules/quest-run.module';
@@ -41,6 +39,9 @@ import { CacheModule, CacheInterceptor, CACHE_MANAGER } from '@nestjs/cache-mana
 import * as redisStore from 'cache-manager-ioredis';
 import { EventEmitterModule } from '@nestjs/event-emitter';
 import { ThrottlerGuard, ThrottlerModule } from '@nestjs/throttler';
+import { OptionCleaner } from 'utils/task-cleaner/option-cleaner';
+import { PlotCleaner } from 'utils/task-cleaner/plot-cleaner';
+import { PlotChoiceModule } from './modules/plot-choice.module';
 
 
 @Module({
@@ -62,7 +63,7 @@ import { ThrottlerGuard, ThrottlerModule } from '@nestjs/throttler';
       ttl: 60,
     }),
   }),
-  EventEmitterModule.forRoot(), AuthModule, UserModule, PrismaModule, QuestModule, MediaModule, SingleChoiceTaskModule, QuestTaskModule, UserQuestProgressModule, UserAnswerModule, OptionModule, QuestViewModule, MultipleChoiceTaskModule, TextFieldTaskModule, FindOnPictureTaskModule, CoordinateModule, FindOnMapTaskModule, InteractivePlotTaskModule, PlotNodeModule, FriendshipModule, QuestRunModule, TaskTimerModule, SingleChoiceAnswerModule, MultipleChoiceAnswerModule, TextFieldAnswerModule, CoordinateAnswerModule, QuestReviewModule],
+  EventEmitterModule.forRoot(), AuthModule, UserModule, PrismaModule, QuestModule, MediaModule, SingleChoiceTaskModule, QuestTaskModule, UserQuestProgressModule, UserAnswerModule, OptionModule, QuestViewModule, MultipleChoiceTaskModule, TextFieldTaskModule, FindOnPictureTaskModule, CoordinateModule, FindOnMapTaskModule, PlotNodeModule, PlotChoiceModule, FriendshipModule, QuestRunModule, TaskTimerModule, SingleChoiceAnswerModule, MultipleChoiceAnswerModule, TextFieldAnswerModule, CoordinateAnswerModule, QuestReviewModule],
   controllers: [],
   providers: [
   {
@@ -84,10 +85,11 @@ import { ThrottlerGuard, ThrottlerModule } from '@nestjs/throttler';
   UserService,
   UserQuestProgressService,
   QuestTaskService,
-  ChoiceCleaner,
+  OptionCleaner,
   TaskCleanerRegistry,
   CoordinateCleaner,
   TextCleaner,
+  PlotCleaner
 ],
 })
 export class AppModule {}
