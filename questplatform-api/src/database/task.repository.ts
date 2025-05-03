@@ -42,7 +42,7 @@ export class QuestTaskRepository {
     });
   }
 
-  async *getQuestTasksPaginated(questId: string, maxPages = 10): AsyncGenerator<QuestTask[]> {
+  async *getQuestTasksPaginated(questId: string, pageSize = 10): AsyncGenerator<QuestTask[]> {
     let lastId: string | undefined = undefined;
     while (true) {
       const page = await this.prisma.questTask.findMany({
@@ -51,7 +51,7 @@ export class QuestTaskRepository {
           ...(lastId && { id: { gt: lastId } })
         },
         orderBy: { id: 'asc' },
-        take: maxPages,
+        take: pageSize,
       });
       if (!page.length) break;
       yield page;

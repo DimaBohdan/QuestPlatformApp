@@ -1,15 +1,23 @@
-import { Body, Controller, Delete, Get, Param, Patch, Post } from '@nestjs/common';
+import { Body, Controller, Delete, Get, Param, Patch, Post, UseGuards } from '@nestjs/common';
 import { ApiBody, ApiOperation, ApiParam, ApiTags } from '@nestjs/swagger';
 import { CoordinateService } from '../services/coordinate.service';
 import { CreateCoordinateDto } from '../dto/coordinate.create.dto';
 import { UpdateCoordinateDto } from '../dto/coordinate.update.dto';
+import { JwtAuthGuard } from 'utils/guards/jwt.guard';
+import { PermissionsGuard } from 'utils/guards/permission.guard';
+import { CoordinateOwnershipGuard } from 'utils/guards/coordinate.ownership.guard';
+import { Permissions } from 'utils/decorators/permissions.decorator';
+import { QuestTaskOwnershipGuard } from 'utils/guards/quest-task.ownership.guard';
 
 @ApiTags('Coordinate')
 @Controller('coordinates')
+@UseGuards(JwtAuthGuard)
 export class CoordinateController {
   constructor(private readonly coordinateService: CoordinateService) {}
 
   @Post(':taskId')
+  @UseGuards(PermissionsGuard, QuestTaskOwnershipGuard)
+  @Permissions('user:edit:own')
   @ApiOperation({ summary: 'Create new coordinate' })
   @ApiParam({ name: 'taskId', description: 'Task ID' })
   @ApiBody({ type: CreateCoordinateDto })
@@ -20,28 +28,32 @@ export class CoordinateController {
     return this.coordinateService.createCoordinate(taskId, dto);
   }
 
-  @Get(':id')
+  @Get(':coordinateId')
   @ApiOperation({ summary: 'Get coordinate by id' })
-  @ApiParam({ name: 'id', description: 'Coordinate ID' })
-  getOption(@Param('id') id: string) {
+  @ApiParam({ name: 'coordinateId', description: 'Coordinate ID' })
+  getOption(@Param('coordinateId') id: string) {
     return this.coordinateService.getCoordinateById(id);
   }
 
-  @Patch(':id')
+  @Patch(':coordinateId')
+  @UseGuards(PermissionsGuard, CoordinateOwnershipGuard)
+  @Permissions('user:edit:own')
   @ApiOperation({ summary: 'Update coordinate by id' })
-  @ApiParam({ name: 'id', description: 'Coordinate ID' })
+  @ApiParam({ name: 'coordinateId', description: 'Coordinate ID' })
   @ApiBody({ type: UpdateCoordinateDto })
   updateOption(
-    @Param('id') id: string, 
+    @Param('coordinateId') id: string, 
     @Body() dto: UpdateCoordinateDto,
   ) {
     return this.coordinateService.updateCoordinare(id, dto);
   }
 
-  @Delete(':id')
+  @Delete(':coordinateId')
+  @UseGuards(PermissionsGuard, CoordinateOwnershipGuard)
+  @Permissions('user:edit:own')
   @ApiOperation({ summary: 'Delete coordinate by id' })
-  @ApiParam({ name: 'id', description: 'Coordinate ID' })
-  deleteOption(@Param('id') id: string) {
+  @ApiParam({ name: 'coordinateId', description: 'Coordinate ID' })
+  deleteOption(@Param('coordinateId') id: string) {
     return this.coordinateService.deleteCoordinate(id);
   }
 }

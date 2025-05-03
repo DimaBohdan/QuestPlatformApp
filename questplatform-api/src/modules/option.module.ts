@@ -5,12 +5,12 @@ import { OptionRepository } from 'src/database/option.repository';
 import { QuestTaskModule } from 'src/modules/quest-task.module';
 import { MediaModule } from 'src/modules/media.module';
 import { PrismaModule } from 'src/prisma/prisma.module';
-import { QuestTaskService } from 'src/services/quest-task.service';
-import { MediaService } from 'src/services/media.service';
-import { QuestTaskRepository } from 'src/database/task.repository';
+import { JwtModule } from '@nestjs/jwt';
+import { PermissionModule } from './permission.module';
+import { QuestModule } from './quest.module';
 
 @Module({
-  imports: [PrismaModule, forwardRef(() => QuestTaskModule), MediaModule],
+  imports: [PrismaModule, forwardRef(() => QuestTaskModule), MediaModule, JwtModule, PermissionModule, forwardRef(() => QuestModule)],
   controllers: [OptionController],
   providers: [OptionService, OptionRepository],
   exports: [OptionService, OptionRepository],

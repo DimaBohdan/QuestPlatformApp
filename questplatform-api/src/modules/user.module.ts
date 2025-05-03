@@ -6,9 +6,10 @@ import { UserController } from '../controllers/user.controller';
 import { PrismaService } from 'src/prisma/prisma.service';
 import { JwtAuthGuard } from 'utils/guards/jwt.guard';
 import { AuthModule } from 'src/modules/auth.module';
+import { PermissionModule } from './permission.module';
 
 @Module({
-  imports: [PrismaModule, forwardRef(() => AuthModule)],
+  imports: [PrismaModule, forwardRef(() => AuthModule), forwardRef(() => PermissionModule)],
   providers: [UserService, UserRepository, PrismaService, JwtAuthGuard],
   controllers: [UserController],
   exports: [UserService, UserRepository],

@@ -1,4 +1,4 @@
-import { Controller, Get, Param, Post, Req } from '@nestjs/common';
+import { Controller, Param, Post, Req } from '@nestjs/common';
 import { QuestViewService } from '../services/quest-view.service';
 import { ApiTags, ApiOperation, ApiParam } from '@nestjs/swagger';
 import { RequestWithUser } from 'utils/types/RequestWithUser';

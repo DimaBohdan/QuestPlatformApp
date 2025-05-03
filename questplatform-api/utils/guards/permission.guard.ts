@@ -1,34 +1,38 @@
-// import { CanActivate, ExecutionContext, Injectable } from '@nestjs/common';
-// import { Request } from 'express';
-// import { Reflector } from '@nestjs/core';
-// import { PermissionService } from './permission.service'; // Импортируй свой сервис для проверки прав
-// import { NoPermissionException } from '../../../exceptions/no-permission.exception';
+import {
+  Injectable,
+  CanActivate,
+  ExecutionContext,
+  ForbiddenException,
+} from '@nestjs/common';
+import { Reflector } from '@nestjs/core';
+import { PERMISSIONS_KEY } from 'utils/decorators/permissions.decorator';
+import { PermissionService } from 'src/services/permission.service';
+import { IS_PUBLIC_KEY } from 'utils/decorators/public.decorator';
 
-// @Injectable()
-// export class PermissionGuard implements CanActivate {
+@Injectable()
+export class PermissionsGuard implements CanActivate {
+  constructor(
+    private reflector: Reflector,
+    private permissionService: PermissionService,
+  ) {}
 
-//   constructor(
-//     private permissionService: PermissionService,
-//     private reflector: Reflector,
-//   ) {}
-
-//   async canActivate(context: ExecutionContext): Promise<boolean> {
-//     const request = context.switchToHttp().getRequest<Request>();
-//     const user = request.user;
-//     const permissions = this.getPermissions(context);
-
-//     for (const permission of permissions) {
-//       if (user == null) {
-//         return false;
-//       }
-
-//       const hasPermission = await this.permissionService.hasPermission(user.id, permission);
-//       if (hasPermission) return true;
-//     }
-//     throw new NoPermissionException();
-//   }
-
-//   getPermissions(context: ExecutionContext): string[] {
-//     return this.reflector.get<string[]>('permissions', context.getHandler()) || [];
-//   }
-// }
+  async canActivate(context: ExecutionContext): Promise<boolean> {
+    const isPublic = this.reflector.get<boolean>(IS_PUBLIC_KEY, context.getHandler());
+    if (isPublic) return true;
+    const requiredPermissions = this.reflector.getAllAndOverride<string[]>(
+      PERMISSIONS_KEY,
+      [context.getHandler(), context.getClass()],
+    );
+    if (!requiredPermissions?.length) return true;
+    const request = context.switchToHttp().getRequest();
+    const user = request.user;
+    if (!user?.id) throw new ForbiddenException('Unauthorized');
+    const userPermissions = await this.permissionService.getUserPermissions(user.id);
+    const matchedPermission = requiredPermissions.find((perm) =>
+      userPermissions.includes(perm),
+    );
+    if (!matchedPermission) throw new ForbiddenException('Insufficient permissions');
+    request.permissionLevel = matchedPermission;
+    return true;
+  }
+}

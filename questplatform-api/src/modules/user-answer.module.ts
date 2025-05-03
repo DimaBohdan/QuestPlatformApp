@@ -12,6 +12,9 @@ import { MultipleChoiceAnswerModule } from 'src/modules/multiple-choice-answer.m
 import { TextFieldAnswerModule } from 'src/modules/text-field-answer.module';
 import { CoordinateAnswerModule } from 'src/modules/coordinate-answer.module';
 import { InteractivePlotAnswerModule } from './interactive-plot-answer.module';
+import { JwtModule } from '@nestjs/jwt';
+import { PermissionModule } from './permission.module';
+import { QuestModule } from './quest.module';
 
 @Module({
   imports: [
@@ -24,6 +27,9 @@ import { InteractivePlotAnswerModule } from './interactive-plot-answer.module';
     forwardRef(() => TextFieldAnswerModule),
     forwardRef(() => CoordinateAnswerModule),
     forwardRef(() => InteractivePlotAnswerModule),
+    JwtModule,
+    PermissionModule, 
+    forwardRef(() => QuestModule),
   ],
   providers: [UserAnswerService, UserAnswerRepository, QuestTaskTypeRegistry],
   controllers: [UserAnswerController],

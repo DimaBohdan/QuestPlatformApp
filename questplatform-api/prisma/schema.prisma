@@ -22,12 +22,13 @@ model User {
   info            String?
   createdAt       DateTime @default(now())
   role            UserRole @default(USER)
+  roles           RoleUser[]
   createdQuests   Quest[] @relation("UserCreatedQuests")
   completedQuests UserCompletedQuest[]
   completedQuestIds String[]
   achievements    Achievement[]
   reviews         QuestReview[]
-  sentFriendRequests  Friendship[]    @relation("UserRequesterFriendships") 
+  sentFriendRequests  Friendship[]    @relation("UserRequesterFriendships")
   receivedFriendRequests Friendship[] @relation("UserReceiverFriendships")
   questProgress UserQuestProgress[]
   questViews    QuestView[]
@@ -97,6 +98,37 @@ enum QuestRunMode {
 enum UserRole {
   USER
   ADMIN
+}
+
+model Role {
+  id          String       @id @default(uuid())
+  name        String       @unique
+  permissions RolePermission[]
+  users       RoleUser[]
+}
+
+model Permission {
+  id    String @id @default(uuid())
+  name  String @unique
+  roles RolePermission[]
+}
+
+model RolePermission {
+  roleId       String
+  permissionId String
+  role         Role       @relation(fields: [roleId], references: [id])
+  permission   Permission @relation(fields: [permissionId], references: [id])
+
+  @@id([roleId, permissionId])
+}
+
+model RoleUser {
+  userId String
+  roleId String
+  user   User @relation(fields: [userId], references: [id])
+  role   Role @relation(fields: [roleId], references: [id])
+
+  @@id([userId, roleId])
 }
 
 model QuestView {

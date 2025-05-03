@@ -9,9 +9,10 @@ import { MediaModule } from 'src/modules/media.module';
 import { QuestTaskModule } from 'src/modules/quest-task.module';
 import { UserQuestProgressModule } from 'src/modules/user-quest-progress.module';
 import { UserAnswerModule } from 'src/modules/user-answer.module';
+import { PermissionModule } from './permission.module';
 
 @Module({
-  imports: [PrismaModule, AuthModule, MediaModule, forwardRef(() => QuestTaskModule), UserQuestProgressModule, UserAnswerModule],
+  imports: [PrismaModule, AuthModule, MediaModule, forwardRef(() => QuestTaskModule), UserQuestProgressModule, UserAnswerModule, PermissionModule],
   controllers: [QuestController],
   providers: [QuestService, QuestRepository, JwtAuthGuard],
   exports: [QuestService, QuestRepository],

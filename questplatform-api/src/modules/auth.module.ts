@@ -7,8 +7,7 @@ import { GoogleStrategy } from 'utils/strategies/google.strategy';
 import { PrismaService } from 'src/prisma/prisma.service';
 import { UserService } from 'src/services/user.service';
 import { UserModule } from 'src/modules/user.module';
-import { APP_GUARD } from '@nestjs/core';
-import { RolesGuard } from 'utils/guards/roles.guard';
+
 
 @Module({
   imports: [
