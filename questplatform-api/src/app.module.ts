@@ -1,12 +1,9 @@
 import { Module } from '@nestjs/common';
 import { AuthModule } from './modules/auth.module';
 import { UserService } from './services/user.service';
-import { UserController } from './controllers/user.controller';
 import { UserModule } from './modules/user.module';
 import { APP_GUARD, APP_INTERCEPTOR } from '@nestjs/core';
 import { JwtAuthGuard } from 'utils/guards/jwt.guard';
-import { RolesGuard } from 'utils/guards/roles.guard';
-import { AuthController } from './controllers/auth.controller';
 import { PrismaModule } from './prisma/prisma.module';
 import { QuestModule } from './modules/quest.module';
 import { MediaModule } from './modules/media.module';
@@ -42,6 +39,11 @@ import { ThrottlerGuard, ThrottlerModule } from '@nestjs/throttler';
 import { OptionCleaner } from 'utils/task-cleaner/option-cleaner';
 import { PlotCleaner } from 'utils/task-cleaner/plot-cleaner';
 import { PlotChoiceModule } from './modules/plot-choice.module';
+import { RoleModule } from './modules/role.module';
+import { PermissionModule } from './modules/permission.module';
+import { PermissionsGuard } from 'utils/guards/permission.guard';
+import { PermissionService } from './services/permission.service';
+import { PermissionRepository } from './database/permission.repository';
 
 
 @Module({
@@ -63,7 +65,7 @@ import { PlotChoiceModule } from './modules/plot-choice.module';
       ttl: 60,
     }),
   }),
-  EventEmitterModule.forRoot(), AuthModule, UserModule, PrismaModule, QuestModule, MediaModule, SingleChoiceTaskModule, QuestTaskModule, UserQuestProgressModule, UserAnswerModule, OptionModule, QuestViewModule, MultipleChoiceTaskModule, TextFieldTaskModule, FindOnPictureTaskModule, CoordinateModule, FindOnMapTaskModule, PlotNodeModule, PlotChoiceModule, FriendshipModule, QuestRunModule, TaskTimerModule, SingleChoiceAnswerModule, MultipleChoiceAnswerModule, TextFieldAnswerModule, CoordinateAnswerModule, QuestReviewModule],
+  EventEmitterModule.forRoot(), AuthModule, UserModule, PrismaModule, QuestModule, MediaModule, SingleChoiceTaskModule, QuestTaskModule, UserQuestProgressModule, UserAnswerModule, OptionModule, QuestViewModule, MultipleChoiceTaskModule, TextFieldTaskModule, FindOnPictureTaskModule, CoordinateModule, FindOnMapTaskModule, PlotNodeModule, PlotChoiceModule, FriendshipModule, QuestRunModule, TaskTimerModule, SingleChoiceAnswerModule, MultipleChoiceAnswerModule, TextFieldAnswerModule, CoordinateAnswerModule, QuestReviewModule, RoleModule, PermissionModule],
   controllers: [],
   providers: [
   {
@@ -80,8 +82,10 @@ import { PlotChoiceModule } from './modules/plot-choice.module';
   },
   {
     provide: APP_GUARD,
-    useClass: RolesGuard,
+    useClass: PermissionsGuard,
   },
+  PermissionService,
+  PermissionRepository,
   UserService,
   UserQuestProgressService,
   QuestTaskService,

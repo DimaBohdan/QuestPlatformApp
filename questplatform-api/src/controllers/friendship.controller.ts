@@ -1,15 +1,19 @@
-import { Controller, Delete, Get, Param, Patch, Post, Req } from '@nestjs/common';
+import { Controller, Delete, Get, Param, Patch, Post, Req, UseGuards } from '@nestjs/common';
 import { FriendshipService } from '../services/friendship.service';
 import { ApiOperation, ApiParam, ApiTags } from '@nestjs/swagger';
 import { RequestWithUser } from 'utils/types/RequestWithUser';
 import { Friendship } from '@prisma/client';
+import { JwtAuthGuard } from 'utils/guards/jwt.guard';
+import { PermissionsGuard } from 'utils/guards/permission.guard';
+import { Permissions } from 'utils/decorators/permissions.decorator';
 
 @ApiTags('Friendship')
 @Controller('friendship')
+@UseGuards(JwtAuthGuard)
 export class FriendshipController {
   constructor(private readonly friendshipService: FriendshipService) {}
 
-  @Post('userId')
+  @Post(':userId')
   @ApiOperation({ summary: 'Create a new friendship request' })
   async createQuest(
     @Req() req: RequestWithUser,
@@ -39,28 +43,36 @@ export class FriendshipController {
   }
 
   @Get('friends/:userId')
+  @Permissions('friendship:access:any')
+  @UseGuards(PermissionsGuard)
   @ApiOperation({ summary: 'Get friends by userId' })
   @ApiParam({ name: 'userId', description: 'User ID' })
-  getFriendsByUser(@Param('userId') id: string) {
+  async getFriendsByUser(@Param('userId') id: string) {
     return this.friendshipService.getFriendsByUser(id);
+  }
+
+  @Get('my/friends')
+  @ApiOperation({ summary: 'Get friends by userId' })
+  async getMyFriends(@Req() req: RequestWithUser) {
+    return this.friendshipService.getFriendsByUser(req.user.id);
   }
 
   @Get('sent')
   @ApiOperation({ summary: 'Get sent friends requests' })
-  getSentFriendRequests(@Req() id: string) {
-    return this.friendshipService.getSentFriendRequests(id);
+  async getSentFriendRequests(@Req() req: RequestWithUser) {
+    return this.friendshipService.getSentFriendRequests(req.user.id);
   }
 
   @Get('received')
   @ApiOperation({ summary: 'Get received friends requests' })
-  getReceivedFriendRequests(@Req() id: string) {
-    return this.friendshipService.getReceivedFriendRequests(id);
+  async getReceivedFriendRequests(@Req() req: RequestWithUser) {
+    return this.friendshipService.getReceivedFriendRequests(req.user.id);
   }
 
   @Get('request/:id')
   @ApiOperation({ summary: 'Get friendship request' })
   @ApiParam({ name: 'id', description: 'User ID' })
-  getFriendshipRequest(
+  async getFriendshipRequest(
     @Param('id') id: string, 
     @Req() req: RequestWithUser,
   ) {
@@ -70,7 +82,7 @@ export class FriendshipController {
   @Delete(':userId')
   @ApiOperation({ summary: 'Delete friendship request by id' })
   @ApiParam({ name: 'userId', description: 'User ID' })
-  deleteOption(
+  async deleteOption(
     @Param('userId') id: string,
     @Req() req: RequestWithUser,
   ) {

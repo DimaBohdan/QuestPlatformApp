@@ -17,11 +17,14 @@ import { TextCleaner } from 'utils/task-cleaner/text-cleaner';
 import { OptionCleaner } from 'utils/task-cleaner/option-cleaner';
 import { PlotCleaner } from 'utils/task-cleaner/plot-cleaner';
 import { PlotNodeModule } from './plot-node.module';
+import { JwtAuthGuard } from 'utils/guards/jwt.guard';
+import { JwtModule } from '@nestjs/jwt';
+import { PermissionModule } from './permission.module';
 
 @Module({
-  imports: [PrismaModule, forwardRef(() => QuestModule), forwardRef(() => OptionModule), forwardRef(() => UserQuestProgressModule), forwardRef(() => UserAnswerModule), PlotNodeModule, MediaModule, CoordinateModule],
+  imports: [PrismaModule, JwtModule, PermissionModule, forwardRef(() => QuestModule), forwardRef(() => OptionModule), forwardRef(() => UserQuestProgressModule), forwardRef(() => UserAnswerModule), PlotNodeModule, MediaModule, CoordinateModule],
   controllers: [QuestTaskController],
-  providers: [QuestTaskService, QuestTaskRepository, QuestService, MediaService, OptionCleaner, CoordinateCleaner, TaskCleanerRegistry, TextCleaner, PlotCleaner],
+  providers: [QuestTaskService, QuestTaskRepository, QuestService, MediaService, OptionCleaner, CoordinateCleaner, TaskCleanerRegistry, TextCleaner, PlotCleaner, JwtAuthGuard],
   exports: [QuestTaskService, QuestTaskRepository],
 })
 export class QuestTaskModule {}

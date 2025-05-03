@@ -1,5 +1,3 @@
-// src/quest/quest-view.service.ts
-
 import { Injectable } from '@nestjs/common';
 import { QuestViewRepository } from 'src/database/quest-view.repository';
 

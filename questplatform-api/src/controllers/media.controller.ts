@@ -1,15 +1,13 @@
-import { Controller, Post, UseInterceptors, UploadedFile, Body, Param, Delete, Query, Req } from '@nestjs/common';
+import { Controller, Post, UseInterceptors, UploadedFile, Body, Param, Delete, Query, Req, UseGuards } from '@nestjs/common';
 import { FileInterceptor } from '@nestjs/platform-express';
 import { MediaService } from '../services/media.service';
 import { CreateMediaRequest } from '../dto/create.media.request';
-import { Public } from 'utils/decorators/public.decorator';
-import { CaslForbiddenError } from 'utils/decorators/casl-forbidden-error.decorator';
-import { CaslForbiddenErrorI } from 'utils/permissions/casl-rules.factory';
-import { subject } from '@casl/ability';
 import { ApiBody, ApiOperation, ApiQuery, ApiTags } from '@nestjs/swagger';
+import { JwtAuthGuard } from 'utils/guards/jwt.guard';
 
 @ApiTags('Media')
 @Controller('media')
+@UseGuards(JwtAuthGuard)
 export class MediaController {
   constructor(private readonly mediaService: MediaService) {}
 
@@ -20,10 +18,7 @@ export class MediaController {
   async uploadImage(
     @UploadedFile() file: Express.Multer.File,
     @Body() data: CreateMediaRequest,
-    @Req() @CaslForbiddenError() forbiddenError: CaslForbiddenErrorI,
   ) {
-
-    // forbiddenError.throwUnlessCan('manage', subject('MediaFile', file));
     return this.mediaService.uploadImage(file, data);
   }
 
@@ -44,10 +39,7 @@ export class MediaController {
   async deleteMediaByEntity(
     @Query('entityKey') entityKey: 'questId' | 'taskId' | 'optionId',
     @Query('entityId') entityId: string,
-    @Req() @CaslForbiddenError() forbiddenError: CaslForbiddenErrorI,
   ) {
-    const mediaFile = await this.mediaService.findMediaFile(entityKey, entityId);
-    forbiddenError.throwUnlessCan('manage', subject('MediaFile', mediaFile));
     return this.mediaService.deleteMediaByEntity(entityKey, entityId);
   }
   
