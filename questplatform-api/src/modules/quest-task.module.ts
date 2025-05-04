@@ -24,7 +24,7 @@ import { PermissionModule } from './permission.module';
 @Module({
   imports: [PrismaModule, JwtModule, PermissionModule, forwardRef(() => QuestModule), forwardRef(() => OptionModule), forwardRef(() => UserQuestProgressModule), forwardRef(() => UserAnswerModule), PlotNodeModule, MediaModule, CoordinateModule],
   controllers: [QuestTaskController],
-  providers: [QuestTaskService, QuestTaskRepository, QuestService, MediaService, OptionCleaner, CoordinateCleaner, TaskCleanerRegistry, TextCleaner, PlotCleaner, JwtAuthGuard],
+  providers: [QuestTaskService, QuestTaskRepository, MediaService, OptionCleaner, CoordinateCleaner, TaskCleanerRegistry, TextCleaner, PlotCleaner, JwtAuthGuard],
   exports: [QuestTaskService, QuestTaskRepository],
 })
 export class QuestTaskModule {}

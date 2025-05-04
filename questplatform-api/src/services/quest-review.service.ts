@@ -1,4 +1,4 @@
-import { Injectable, NotFoundException } from '@nestjs/common';
+import { forwardRef, Inject, Injectable, NotFoundException } from '@nestjs/common';
 import { QuestReview } from '@prisma/client';
 import { QuestReviewRepository } from 'src/database/quest-review.repository';
 import { CreateQuestReviewDto } from 'src/dto/create.quest-review.dto';
@@ -12,6 +12,7 @@ import { EventEmitter2 } from '@nestjs/event-emitter';
 export class QuestReviewService {
   constructor(
     private readonly questReviewRepository: QuestReviewRepository,
+    @Inject(forwardRef(() => QuestService))
     private readonly questService: QuestService,
     private readonly eventEmitter: EventEmitter2,
   ) {}
