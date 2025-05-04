@@ -1,4 +1,4 @@
-import { BadRequestException, forwardRef, Inject, Injectable, NotFoundException } from "@nestjs/common";
+import { BadRequestException, ConflictException, forwardRef, Inject, Injectable, NotFoundException } from "@nestjs/common";
 import { QuestRunStatus, UserQuestProgress } from "@prisma/client";
 import { UserQuestProgressRepository } from "src/database/user-quest-progress.repository";
 import { QuestRunGateway } from "src/gateway/quest-run.gateway";
@@ -38,7 +38,7 @@ export class UserQuestProgressService {
   async createProgress(runId: string, userId: string): Promise<UserQuestProgress> {
     const progress = await this.progressRepository.findProgress(userId, runId);
     if (progress) {
-      throw new BadRequestException('Already existing user progress');
+      throw new ConflictException('Already existing user progress');
     }
     return await this.progressRepository.createProgress(userId, runId);
   }

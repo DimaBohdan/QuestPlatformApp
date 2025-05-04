@@ -6,7 +6,7 @@ import {
     WebSocketServer,
   } from '@nestjs/websockets';
 import { QuestTask } from '@prisma/client';
-  import { Server, Socket } from 'socket.io';
+import { Server, Socket } from 'socket.io';
   
   @WebSocketGateway(
     3002, 
