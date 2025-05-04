@@ -65,18 +65,22 @@ export class FriendshipRepository {
   }
 
   async getFriendshipRequest(requesterId: string, receiverId: string): Promise<Friendship | null> {
-    return this.prisma.friendship.findUnique({
+    return this.prisma.friendship.findFirst({
       where: {
-        requesterId_receiverId: { requesterId, receiverId }
-      }
+        OR: [
+          { requesterId, receiverId },
+          { requesterId: receiverId, receiverId: requesterId },
+        ],
+      },
     });
   }
 
   async delete(requesterId: string, receiverId: string): Promise<Friendship> {
-    return this.prisma.friendship.delete({ where:
-      { requesterId_receiverId:
-        {requesterId, receiverId}
-      }
+    return this.prisma.friendship.delete({
+      where:
+        { requesterId_receiverId:
+          {requesterId, receiverId}
+        }
     });
   }
 }

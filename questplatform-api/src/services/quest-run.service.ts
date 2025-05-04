@@ -1,4 +1,4 @@
-import { BadRequestException, ForbiddenException, forwardRef, Inject, Injectable, NotFoundException } from "@nestjs/common";
+import { BadRequestException, ConflictException, ForbiddenException, forwardRef, Inject, Injectable, NotFoundException } from "@nestjs/common";
 import { QuestRun, QuestRunStatus, QuestStatus, QuestTask, UserQuestProgress } from "@prisma/client";
 import { QuestRunRepository } from "src/database/quest-run.repository";
 import { QuestTaskService } from "src/services/quest-task.service";
@@ -48,7 +48,7 @@ export class QuestRunService {
   async launchRun(runId: string): Promise<QuestRun> {
     const run = await this.getQuestRunById(runId);
     if (run.status !== QuestRunStatus.INACTIVE) {
-      throw new BadRequestException('Quest has already started or finished');
+      throw new ConflictException('Quest has already started or finished');
     }
     await this.questRunRepository.startRun(runId);
     const quest = await this.questService.findQuestById(run.questId);
@@ -60,7 +60,7 @@ export class QuestRunService {
   async completeRun(runId: string): Promise<QuestRun> {
     const run = await this.getQuestRunById(runId);
     if (run.status == QuestRunStatus.COMPLETED) {
-      throw new BadRequestException('Quest has already finished');
+      throw new ConflictException('Quest has already finished');
     }
     this.questRunGateway.sendQuestCompleted(runId);
     return await this.questRunRepository.completeRun(runId);

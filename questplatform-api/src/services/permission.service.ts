@@ -1,4 +1,4 @@
-import { BadRequestException, forwardRef, Inject, Injectable, NotFoundException } from "@nestjs/common";
+import { BadRequestException, ConflictException, forwardRef, Inject, Injectable, NotFoundException } from "@nestjs/common";
 import { Permission } from "@prisma/client";
 import { PermissionRepository } from "src/database/permission.repository";
 import { RoleService } from "./role.service";
@@ -16,7 +16,7 @@ export class PermissionService {
   async createPermission(name: string): Promise<Permission> {
     const permission = await this.permissionRepository.getPermission(name);
     if (permission) {
-      throw new BadRequestException('Permission with such name already exists')
+      throw new ConflictException('Permission with such name already exists')
     }
     return await this.permissionRepository.createPermission(name);
   }

@@ -1,4 +1,4 @@
-import { BadRequestException, Injectable, NotFoundException } from "@nestjs/common";
+import { BadRequestException, ConflictException, Injectable, NotFoundException } from "@nestjs/common";
 import { Role } from "@prisma/client";
 import { RoleRepository } from "src/database/role.repository";
 
@@ -9,7 +9,7 @@ export class RoleService {
   async createRole(name: string): Promise<Role> {
     const role = await this.roleRepository.getRole(name);
     if (role) {
-      throw new BadRequestException('Role with such name already exists')
+      throw new ConflictException('Role with such name already exists')
     }
     return await this.roleRepository.createRole(name);
   }
