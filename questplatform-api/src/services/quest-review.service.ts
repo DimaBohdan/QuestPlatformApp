@@ -6,18 +6,22 @@ import { QuestService } from './quest.service';
 import { UpdateQuestReviewDto } from 'src/dto/update.quest-review.dto';
 import { Log } from 'utils/decorators/log.decorator';
 import { LogLevel } from 'src/enums/LogLevel.enum';
+import { EventEmitter2 } from '@nestjs/event-emitter';
 
 @Injectable()
 export class QuestReviewService {
   constructor(
     private readonly questReviewRepository: QuestReviewRepository,
     private readonly questService: QuestService,
+    private readonly eventEmitter: EventEmitter2,
   ) {}
 
   @Log(LogLevel.INFO)
   async create(questId: string, userId: string, dto: CreateQuestReviewDto): Promise<QuestReview> {
     await this.questService.findQuestById(questId);
-    return await this.questReviewRepository.create(questId, userId, dto);
+    const review = await this.questReviewRepository.create(questId, userId, dto);
+    this.eventEmitter.emit('review.rating-updated');
+    return review;
   }
 
   async getReviewById(id: string): Promise<QuestReview> {
@@ -34,10 +38,14 @@ export class QuestReviewService {
   }
 
   async update(id: string, dto: UpdateQuestReviewDto): Promise<QuestReview> {
-    return this.questReviewRepository.update(id, dto);
+    const review = await this.questReviewRepository.update(id, dto);
+    this.eventEmitter.emit('review.rating-updated');
+    return review;
   }
 
   async delete(id: string): Promise<QuestReview> {
-    return this.questReviewRepository.delete(id);
+    const review = await this.questReviewRepository.delete(id);
+    this.eventEmitter.emit('review.rating-updated');
+    return review;
   }
 }

@@ -81,6 +81,15 @@ export class QuestRepository {
     });
   }
 
+  async setRating(id: string, rating: number): Promise<Quest> {
+    return this.prisma.quest.update({
+      where: { id },
+      data: {
+        rating
+      }
+    })
+  }
+
   async create(data: CreateQuestDto, authorId: string): Promise<Quest> {
     return this.prisma.quest.create({
       data: { 

@@ -8,6 +8,7 @@ import { QuestTaskService } from 'src/services/quest-task.service';
 import { QuestSortField } from '../enums/QuestSortField.enum';
 import { QuestSortOrder } from '../enums/QuestSortOrder.enum';
 import { OnEvent } from '@nestjs/event-emitter';
+import { QuestReviewService } from './quest-review.service';
 
 
 @Injectable()
@@ -18,6 +19,8 @@ export class QuestService {
     private mediaService: MediaService,
     @Inject(forwardRef(() => QuestTaskService))
     private questTaskService: QuestTaskService,
+    @Inject(forwardRef(() => QuestReviewService))
+    private questReviewService: QuestReviewService,
   ) {}
 
   async getAllPublishedQuests(
@@ -110,5 +113,13 @@ export class QuestService {
       throw new BadRequestException('Quest must be ready to publish it!');
     }
     return await this.questRepository.setStatus(id, QuestStatus.PUBLISHED)
+  }
+
+  @OnEvent('review.rating-updated')
+  async calculateQuestRating(questId: string): Promise<Quest> {
+    const reviews = await this.questReviewService.getReviewsByQuest(questId);   
+    const total = reviews.reduce((sum, r) => sum + r.score, 0);
+    const average = total / reviews.length;
+    return await this.questRepository.setRating(questId, average);
   }
 }
