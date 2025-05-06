@@ -6,9 +6,10 @@ import { OptionModule } from 'src/modules/option.module';
 import { JwtModule } from '@nestjs/jwt';
 import { PermissionModule } from './permission.module';
 import { QuestModule } from './quest.module';
+import { AuthModule } from './auth.module';
 
 @Module({
-  imports: [QuestTaskModule, OptionModule, JwtModule, PermissionModule, QuestModule],
+  imports: [QuestTaskModule, AuthModule, OptionModule, JwtModule, PermissionModule, QuestModule],
   controllers: [MultipleChoiceTaskController],
   providers: [MultipleChoiceTaskService]
 })

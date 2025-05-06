@@ -8,9 +8,10 @@ import { PrismaModule } from 'src/prisma/prisma.module';
 import { JwtModule } from '@nestjs/jwt';
 import { PermissionModule } from './permission.module';
 import { QuestModule } from './quest.module';
+import { AuthModule } from './auth.module';
 
 @Module({
-  imports: [PrismaModule, forwardRef(() => QuestTaskModule), MediaModule, JwtModule, PermissionModule, forwardRef(() => QuestModule)],
+  imports: [PrismaModule, AuthModule, forwardRef(() => QuestTaskModule), MediaModule, JwtModule, PermissionModule, forwardRef(() => QuestModule)],
   controllers: [OptionController],
   providers: [OptionService, OptionRepository],
   exports: [OptionService, OptionRepository],

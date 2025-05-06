@@ -2,10 +2,14 @@ import { PassportStrategy } from '@nestjs/passport';
 import { Injectable } from '@nestjs/common';
 import { Strategy, VerifyCallback } from 'passport-google-oauth20';
 import { UserService } from 'src/services/user.service';
+import { RoleService } from 'src/services/role.service';
 
 @Injectable()
 export class GoogleStrategy extends PassportStrategy(Strategy, 'google') {
-  constructor(private readonly userService: UserService) {
+  constructor(
+    private readonly userService: UserService,
+    private readonly roleService: RoleService,
+  ) {
     super({
       clientID: process.env.GOOGLE_CLIENT_ID,
       clientSecret: process.env.GOOGLE_CLIENT_SECRET,
@@ -31,6 +35,7 @@ export class GoogleStrategy extends PassportStrategy(Strategy, 'google') {
         email: emails[0].value,
         avatar: photos?.[0]?.value || this.getDefaultAvatar,
       });
+      await this.roleService.assignRoleToUser(user.id, 'USER');
     }
     return done(null, user);
   }

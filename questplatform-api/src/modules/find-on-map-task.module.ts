@@ -6,9 +6,10 @@ import { CoordinateModule } from 'src/modules/coordinate.module';
 import { JwtModule } from '@nestjs/jwt';
 import { PermissionModule } from './permission.module';
 import { QuestModule } from './quest.module';
+import { AuthModule } from './auth.module';
 
 @Module({
-  imports: [QuestTaskModule, CoordinateModule, JwtModule, PermissionModule, QuestModule],
+  imports: [QuestTaskModule, CoordinateModule, AuthModule, JwtModule, PermissionModule, QuestModule],
   controllers: [FindOnMapTaskController],
   providers: [FindOnMapTaskService]
 })

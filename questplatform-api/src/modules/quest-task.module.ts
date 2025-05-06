@@ -20,9 +20,10 @@ import { PlotNodeModule } from './plot-node.module';
 import { JwtAuthGuard } from 'utils/guards/jwt.guard';
 import { JwtModule } from '@nestjs/jwt';
 import { PermissionModule } from './permission.module';
+import { AuthModule } from './auth.module';
 
 @Module({
-  imports: [PrismaModule, JwtModule, PermissionModule, forwardRef(() => QuestModule), forwardRef(() => OptionModule), forwardRef(() => UserQuestProgressModule), forwardRef(() => UserAnswerModule), PlotNodeModule, MediaModule, CoordinateModule],
+  imports: [PrismaModule, AuthModule, JwtModule, PermissionModule, forwardRef(() => QuestModule), forwardRef(() => OptionModule), forwardRef(() => UserQuestProgressModule), forwardRef(() => UserAnswerModule), PlotNodeModule, MediaModule, CoordinateModule],
   controllers: [QuestTaskController],
   providers: [QuestTaskService, QuestTaskRepository, MediaService, OptionCleaner, CoordinateCleaner, TaskCleanerRegistry, TextCleaner, PlotCleaner, JwtAuthGuard],
   exports: [QuestTaskService, QuestTaskRepository],

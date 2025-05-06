@@ -7,6 +7,7 @@ import { GoogleStrategy } from 'utils/strategies/google.strategy';
 import { PrismaService } from 'src/prisma/prisma.service';
 import { UserService } from 'src/services/user.service';
 import { UserModule } from 'src/modules/user.module';
+import { RoleModule } from './role.module';
 
 
 @Module({
@@ -17,6 +18,7 @@ import { UserModule } from 'src/modules/user.module';
       signOptions: { expiresIn: process.env.JWT_EXPIRES_IN },
     }),
     forwardRef(() => UserModule),
+    RoleModule,
   ],
   controllers: [AuthController],
   providers: [AuthService, GoogleStrategy, PrismaService, UserService],

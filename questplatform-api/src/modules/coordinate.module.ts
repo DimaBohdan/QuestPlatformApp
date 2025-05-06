@@ -5,11 +5,11 @@ import { CoordinateRepository } from 'src/database/coordinate.repository';
 import { JwtModule } from '@nestjs/jwt';
 import { PermissionModule } from './permission.module';
 import { QuestModule } from './quest.module';
-import { OptionModule } from './option.module';
 import { QuestTaskModule } from './quest-task.module';
+import { AuthModule } from './auth.module';
 
 @Module({
-  imports: [JwtModule, PermissionModule, forwardRef(() => QuestModule), forwardRef(() => QuestTaskModule)],
+  imports: [JwtModule, AuthModule, PermissionModule, forwardRef(() => QuestModule), forwardRef(() => QuestTaskModule)],
   controllers: [CoordinateController],
   providers: [CoordinateService, CoordinateRepository],
   exports: [CoordinateService, CoordinateRepository]

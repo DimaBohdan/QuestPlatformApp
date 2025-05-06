@@ -7,9 +7,10 @@ import { MediaModule } from 'src/modules/media.module';
 import { JwtModule } from '@nestjs/jwt';
 import { PermissionModule } from './permission.module';
 import { QuestModule } from './quest.module';
+import { AuthModule } from './auth.module';
 
 @Module({
-  imports: [QuestTaskModule, CoordinateModule, JwtModule, PermissionModule, QuestModule, MediaModule],
+  imports: [QuestTaskModule, CoordinateModule, AuthModule, JwtModule, PermissionModule, QuestModule, MediaModule],
   providers: [FindOnPictureTaskService],
   controllers: [FindOnPictureTaskController]
 })

@@ -1,5 +1,3 @@
-import { UserRole } from "@prisma/client";
-
 export interface JwtPayload {
   id: string;
   username: string;
@@ -7,7 +5,6 @@ export interface JwtPayload {
   nickname: string;
   avatar: string;
   info: string | null;
-  role: UserRole;
   createdAt: Date;
   completedQuestIds: string[];
 }

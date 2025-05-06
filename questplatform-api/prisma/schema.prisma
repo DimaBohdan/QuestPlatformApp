@@ -21,7 +21,6 @@ model User {
   avatar          String
   info            String?
   createdAt       DateTime @default(now())
-  role            UserRole @default(USER)
   roles           RoleUser[]
   createdQuests   Quest[] @relation("UserCreatedQuests")
   completedQuests UserCompletedQuest[]
@@ -93,11 +92,6 @@ model QuestRun {
 enum QuestRunMode {
   SINGLE_PLAYER
   MULTIPLAYER
-}
-
-enum UserRole {
-  USER
-  ADMIN
 }
 
 model Role {

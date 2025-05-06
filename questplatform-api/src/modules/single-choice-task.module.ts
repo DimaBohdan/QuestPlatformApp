@@ -7,9 +7,10 @@ import { SingleChoiceTaskController } from '../controllers/single-choice-task.co
 import { JwtModule } from '@nestjs/jwt';
 import { PermissionModule } from './permission.module';
 import { QuestModule } from './quest.module';
+import { AuthModule } from './auth.module';
 
 @Module({
-  imports: [PrismaModule, QuestTaskModule, OptionModule, JwtModule, PermissionModule, QuestModule],
+  imports: [PrismaModule, QuestTaskModule, OptionModule, AuthModule, JwtModule, PermissionModule, QuestModule],
   providers: [SingleChoiceTaskService],
   exports: [SingleChoiceTaskService],
   controllers: [SingleChoiceTaskController],

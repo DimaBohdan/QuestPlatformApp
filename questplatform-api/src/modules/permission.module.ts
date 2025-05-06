@@ -7,10 +7,11 @@ import { PermissionController } from 'src/controllers/permission.controller';
 import { PermissionsGuard } from 'utils/guards/permission.guard';
 import { JwtAuthGuard } from 'utils/guards/jwt.guard';
 import { JwtModule } from '@nestjs/jwt';
+import { AuthModule } from './auth.module';
 
 
 @Module({
-  imports: [RoleModule, forwardRef(() => UserModule), JwtModule],
+  imports: [RoleModule, forwardRef(() => UserModule), forwardRef(() => AuthModule), JwtModule],
   providers: [PermissionService, PermissionRepository, PermissionService, PermissionRepository, PermissionsGuard, JwtAuthGuard],
   controllers: [PermissionController],
   exports: [PermissionService, PermissionService, PermissionsGuard]

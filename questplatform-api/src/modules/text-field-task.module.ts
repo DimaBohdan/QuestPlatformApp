@@ -5,9 +5,10 @@ import { QuestTaskModule } from 'src/modules/quest-task.module';
 import { JwtModule } from '@nestjs/jwt';
 import { PermissionModule } from './permission.module';
 import { QuestModule } from './quest.module';
+import { AuthModule } from './auth.module';
 
 @Module({
-  imports: [QuestTaskModule, JwtModule, PermissionModule, QuestModule],
+  imports: [QuestTaskModule, AuthModule, JwtModule, PermissionModule, QuestModule],
   providers: [TextFieldTaskService],
   controllers: [TextFieldTaskController],
   exports: [TextFieldTaskService]

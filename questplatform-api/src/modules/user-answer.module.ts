@@ -15,6 +15,7 @@ import { InteractivePlotAnswerModule } from './interactive-plot-answer.module';
 import { JwtModule } from '@nestjs/jwt';
 import { PermissionModule } from './permission.module';
 import { QuestModule } from './quest.module';
+import { AuthModule } from './auth.module';
 
 @Module({
   imports: [
@@ -27,6 +28,7 @@ import { QuestModule } from './quest.module';
     forwardRef(() => TextFieldAnswerModule),
     forwardRef(() => CoordinateAnswerModule),
     forwardRef(() => InteractivePlotAnswerModule),
+    AuthModule,
     JwtModule,
     PermissionModule, 
     forwardRef(() => QuestModule),
