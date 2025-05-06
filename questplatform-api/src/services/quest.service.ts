@@ -55,7 +55,7 @@ export class QuestService {
   async createQuest(data: CreateQuestDto, authorId: string, file?: Express.Multer.File): Promise<Quest> {
     const quest = await this.questRepository.create(data, authorId);
     if (file) {
-      const image = await this.mediaService.uploadImage(file, {'questId': quest.id})
+      const image = await this.mediaService.uploadMedia(file, {'questId': quest.id})
     }
     const result = await this.questRepository.findById(quest.id);
     if (!result) {
@@ -70,7 +70,7 @@ export class QuestService {
       throw new NotFoundException('Quest not found');
     }
     if (file) {
-      await this.mediaService.uploadImage(file, {'questId': quest.id});
+      await this.mediaService.uploadMedia(file, {'questId': quest.id});
     }
     return this.questRepository.update(id, data);
   }

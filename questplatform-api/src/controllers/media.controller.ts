@@ -1,8 +1,8 @@
-import { Controller, Post, UseInterceptors, UploadedFile, Body, Param, Delete, Query, Req, UseGuards } from '@nestjs/common';
+import { Controller, Post, UseInterceptors, UploadedFile, Body, Delete, Query, UseGuards } from '@nestjs/common';
 import { FileInterceptor } from '@nestjs/platform-express';
 import { MediaService } from '../services/media.service';
 import { CreateMediaRequest } from '../dto/create.media.request';
-import { ApiBody, ApiOperation, ApiQuery, ApiTags } from '@nestjs/swagger';
+import { ApiBody, ApiOperation, ApiQuery, ApiTags, ApiConsumes } from '@nestjs/swagger';
 import { JwtAuthGuard } from 'utils/guards/jwt.guard';
 
 @ApiTags('Media')
@@ -12,14 +12,42 @@ export class MediaController {
   constructor(private readonly mediaService: MediaService) {}
 
   @Post()
-  @ApiOperation({ summary: 'Create media file' })
-  @ApiBody({ type: CreateMediaRequest })
   @UseInterceptors(FileInterceptor('file'))
+  @ApiOperation({ summary: 'Create media file' })
+  @ApiBody({
+    description: 'Upload media file, `questId`, `taskId`, or `optionId` should be provided if necessary.',
+    schema: {
+      type: 'object',
+      properties: {
+        file: {
+          type: 'string',
+          format: 'binary',
+        },
+        questId: {
+          type: 'string',
+          nullable: true,
+          description: 'Optional questId',
+        },
+        taskId: {
+          type: 'string',
+          nullable: true,
+          description: 'Optional taskId',
+        },
+        optionId: {
+          type: 'string',
+          nullable: true,
+          description: 'Optional optionId',
+        },
+      },
+      required: ['file'],
+    },
+  })
+  @ApiConsumes('multipart/form-data')
   async uploadImage(
     @UploadedFile() file: Express.Multer.File,
     @Body() data: CreateMediaRequest,
   ) {
-    return this.mediaService.uploadImage(file, data);
+    return this.mediaService.uploadMedia(file, data);
   }
 
   @Delete()

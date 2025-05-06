@@ -46,7 +46,7 @@ export class PlotChoiceService {
 
   async update(id: string, dto: UpdatePlotChoiceDto, file?: Express.Multer.File): Promise<PlotChoice> {
     if (file) {
-      await this.mediaService.uploadImage(file, {'optionId': id})
+      await this.mediaService.uploadMedia(file, {'optionId': id})
     }
     const choice = await this.plotChoiceRepository.update(id, dto);
     const node = await this.plotNodeService.getPlotNodeById(choice.nodeId);

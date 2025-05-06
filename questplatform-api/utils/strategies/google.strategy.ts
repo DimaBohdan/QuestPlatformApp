@@ -41,6 +41,6 @@ export class GoogleStrategy extends PassportStrategy(Strategy, 'google') {
   }
 
   private getDefaultAvatar(email: string): string {
-    return `https://api.dicebear.com/7.x/identicon/svg?seed=${email}`;
+    return `${process.env.RANDOM_AVATAR_LINK}?seed=${email}`;
   }
 }

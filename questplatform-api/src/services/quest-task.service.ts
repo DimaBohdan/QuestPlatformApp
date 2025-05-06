@@ -44,7 +44,7 @@ export class QuestTaskService {
     const taskOrder = quest.taskQuantity++;
     const task = await this.taskRepository.create(questId, taskOrder, data);
     if (file) {
-      await this.mediaService.uploadImage(file, {'taskId': task.id})
+      await this.mediaService.uploadMedia(file, {'taskId': task.id})
     }
     const result = await this.findTaskById(task.id);
     if (!result) {
@@ -93,7 +93,7 @@ export class QuestTaskService {
   async updateTask(id: string, data: UpdateQuestTaskDto, file?: Express.Multer.File): Promise<QuestTask> {
     const task = await this.findTaskById(id);
     if (file) {
-      await this.mediaService.uploadImage(file, {'taskId': task.id});
+      await this.mediaService.uploadMedia(file, {'taskId': task.id});
     }
     if (data.type && data.type !== task.type) {
       await this.clearIncompatibleData(id, task.type);

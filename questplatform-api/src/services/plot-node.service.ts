@@ -20,7 +20,7 @@ export class PlotNodeService {
   async create(id: string, dto: CreatePlotNodeDto, file?: Express.Multer.File): Promise<PlotNode> {
     const task = await this.questTaskService.findTaskById(id);
     if (file) {
-      await this.mediaService.uploadImage(file, {'optionId': id})
+      await this.mediaService.uploadMedia(file, {'optionId': id})
     }
     if (task.type == QuestTaskType.INTERACTIVE_PLOT) {
       return await this.plotNodeRepository.create(id, dto);
@@ -50,7 +50,7 @@ export class PlotNodeService {
 
   async update(id: string, dto: UpdatePlotNodeDto, file?: Express.Multer.File): Promise<PlotNode> {
     if (file) {
-      await this.mediaService.uploadImage(file, {'optionId': id})
+      await this.mediaService.uploadMedia(file, {'optionId': id})
     }
     return this.plotNodeRepository.update(id, dto);
   }

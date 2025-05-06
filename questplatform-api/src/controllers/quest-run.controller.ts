@@ -14,14 +14,12 @@ import { Permissions } from 'utils/decorators/permissions.decorator';
 export class QuestRunController {
   constructor(private readonly questRunService: QuestRunService) {}
 
-  @Public()
   @Post('start/:questId/single')
   async startSinglePlayer(@Param('questId') questId: string, @Req() req: RequestWithUser) {
     const userId = req.user.id;
     return this.questRunService.startSinglePlayer(questId, userId);
   }
 
-  @Public()
   @Post('start/:questId/multiplayer')
   async startMultiplayer(@Param('questId') questId: string, @Req() req: RequestWithUser) {
     const userId = req.user.id;

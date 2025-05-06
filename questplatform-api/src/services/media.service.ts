@@ -1,9 +1,8 @@
 import { BadRequestException, Inject, Injectable, NotFoundException } from "@nestjs/common";
-import { v2 as cloudinary, UploadApiResponse } from 'cloudinary';
+import { v2 as cloudinary } from 'cloudinary';
 import { MediaFile, MediaFileType } from "@prisma/client";
 import { MediaRepository } from "src/database/media.repository";
 import { CreateMediaRequest } from "../dto/create.media.request";
-import { Transform } from "stream";
 
 @Injectable()
 export class MediaService {
@@ -20,14 +19,14 @@ export class MediaService {
     return file;
   }
 
-  async uploadImage(file: Express.Multer.File, data: CreateMediaRequest): Promise<MediaFile> {
+  async uploadMedia(file: Express.Multer.File, data: CreateMediaRequest): Promise<MediaFile> {
     if (!file) throw new BadRequestException('File must be provided');
 
     const assignedEntities = Object.entries({
       questId: data.questId,
       taskId: data.taskId,
       optionId: data.optionId,
-    }).filter(([key, value]) => value !== undefined);
+    }).filter(([key, value]) => value != null && value !== '');
   
     if (assignedEntities.length !== 1) {
       throw new BadRequestException('A media file must belong to exactly one entity: quest, task, or option.');
@@ -43,10 +42,14 @@ export class MediaService {
     return await this.saveNewMedia(uploadResult, entityKey, entityId!);
   }
 
-  private async uploadToCloudinary(file: Express.Multer.File){
+  private async uploadToCloudinary(file: Express.Multer.File) {
+    const resourceType = file.mimetype.startsWith('video') ? 'video' : 'image';
     return new Promise((resolve, reject) => {
       const uploadStream = this.cloudinaryInstance.uploader.upload_stream(
-        { folder: 'media' },
+        { 
+          folder: 'media',
+          resource_type: resourceType,
+        },
         (error, result) => {
           if (error) return reject(new BadRequestException('Failed to upload to Cloudinary'));
           resolve(result);
@@ -57,7 +60,6 @@ export class MediaService {
   }
 
   private async deleteExistingMedia(media: MediaFile) {
-    console.log(media.public_id);
     await this.cloudinaryInstance.uploader.destroy(media.public_id!);
     await this.mediaRepository.delete(media.id);
   }
@@ -66,7 +68,7 @@ export class MediaService {
     const mediaData = {
       url: uploadResult.secure_url,
       public_id: uploadResult.public_id,
-      type: MediaFileType.IMAGE,
+      type: uploadResult.resource_type === 'video' ? MediaFileType.VIDEO : MediaFileType.IMAGE,
       width: uploadResult.width,
       height: uploadResult.height,
       [entityKey]: entityId,

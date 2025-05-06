@@ -20,7 +20,7 @@ export class OptionService {
   async createOption(id: string, dto: CreateOptionDto, file?: Express.Multer.File): Promise<Option> {
     const task = await this.questTaskService.findTaskById(id);
     if (file) {
-      await this.mediaService.uploadImage(file, {'optionId': id})
+      await this.mediaService.uploadMedia(file, {'optionId': id})
     }
     if (task.type == QuestTaskType.SINGLE_CHOICE || task.type == QuestTaskType.MULTIPLE_CHOICE) {
       const option = await this.optionRepository.createOption(id, dto);
@@ -51,7 +51,7 @@ export class OptionService {
 
   async updateOption(id: string, dto: UpdateOptionDto, file?: Express.Multer.File): Promise<Option> {
     if (file) {
-      await this.mediaService.uploadImage(file, {'optionId': id})
+      await this.mediaService.uploadMedia(file, {'optionId': id})
     }
     const option = await this.optionRepository.updateOption(id, dto);
     this.eventEmitter.emit('task.structure-updated', { taskId: option.taskId });
