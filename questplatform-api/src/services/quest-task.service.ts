@@ -72,7 +72,8 @@ export class QuestTaskService {
     res.setHeader('Content-Type', 'application/json');
     res.write('[');
     let first = true;
-    for await (const page of this.taskRepository.getQuestTasksPaginated(questId, 2)) {
+    const tasksPaginated = this.taskRepository.getQuestTasksPaginated(questId, 2);
+    for await (const page of tasksPaginated) {
       for (const task of page) {
         if (!first) res.write(',');
         res.write(JSON.stringify(task));

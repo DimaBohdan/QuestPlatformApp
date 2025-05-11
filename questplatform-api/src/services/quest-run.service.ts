@@ -1,5 +1,5 @@
 import { BadRequestException, ConflictException, ForbiddenException, forwardRef, Inject, Injectable, NotFoundException } from "@nestjs/common";
-import { QuestRun, QuestRunStatus, QuestStatus, QuestTask, UserQuestProgress } from "@prisma/client";
+import { QuestRun, QuestRunStatus, QuestStatus, QuestTask } from "@prisma/client";
 import { QuestRunRepository } from "src/database/quest-run.repository";
 import { QuestTaskService } from "src/services/quest-task.service";
 import { QuestService } from "src/services/quest.service";
@@ -7,6 +7,8 @@ import { TaskTimerService } from "src/services/task-timer.service";
 import { UserQuestProgressService } from "src/services/user-quest-progress.service";
 import { QuestRunGateway } from "../gateway/quest-run.gateway";
 import { LeaderboardItemDto } from "src/dto/leaderboard-item";
+import { CreateQuestRunDto } from "src/dto/create.quest-run.dto";
+import { Cron, CronExpression } from "@nestjs/schedule";
 
 @Injectable()
 export class QuestRunService {
@@ -35,14 +37,14 @@ export class QuestRunService {
     return run;
   }
 
-  async startMultiplayer(questId: string, userId: string): Promise<QuestRun> {
+  async startMultiplayer(questId: string, userId: string, data?: CreateQuestRunDto): Promise<QuestRun> {
     const quest = await this.questService.findQuestById(questId);
     if (quest.quest_status !== QuestStatus.PUBLISHED) {
       throw new BadRequestException('Only published quests can be used for multiplayer');
     }
     await this.questService.findQuestById(questId);
     const code = this.generateCode();
-    return await this.questRunRepository.createMultipleRun(questId, userId, code);
+    return await this.questRunRepository.createMultipleRun(questId, userId, code, data);
   }
 
   async launchRun(runId: string): Promise<QuestRun> {
@@ -68,10 +70,12 @@ export class QuestRunService {
 
   async getLeaderboard(runId: string): Promise<LeaderboardItemDto[]> {
     const runs = await this.userQuestProgressService.findProgressByRun(runId);
-    return runs.map(run => ({
+    return runs
+    .sort((a, b) => (b.score ?? 0) - (a.score ?? 0))
+    .map(run => ({
       userId: run.userId,
       score: run.score,
-    }));  
+    }));
   }
 
   async getCurrentTask(runId: string, userId: string): Promise<QuestTask> {
@@ -99,6 +103,15 @@ export class QuestRunService {
 
   private generateCode(): string {
     return Math.random().toString(36).substring(2, 8).toUpperCase();
+  }
+
+  @Cron(CronExpression.EVERY_MINUTE)
+  async autoLaunchScheduledRuns() {
+    const now = new Date();
+    const runsToLaunch = await this.questRunRepository.findScheduledRunsToLaunch(now);
+    for (const run of runsToLaunch) {
+      await this.launchRun(run.id);
+    }
   }
 
   async getQuestRunById(runId: string): Promise<QuestRun> {
