@@ -20,6 +20,7 @@ model User {
   email           String  @unique
   avatar          String
   info            String?
+  customerId      String?
   createdAt       DateTime @default(now())
   roles           RoleUser[]
   createdQuests   Quest[] @relation("UserCreatedQuests")
@@ -84,6 +85,7 @@ model QuestRun {
   startedAt   DateTime?
   completedAt DateTime?
   currentTaskIndex Int    @default(-1)
+  scheduledAt DateTime?
   status    QuestRunStatus @default(INACTIVE)
 
   progess   UserQuestProgress[]

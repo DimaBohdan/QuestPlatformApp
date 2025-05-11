@@ -17,6 +17,7 @@ export class AuthService {
       username: user.username,
       avatar: user.avatar,
       info: user.info,
+      customerId: user.customerId,
       createdAt: user.createdAt,
       completedQuestIds: user.completedQuestIds,
     };

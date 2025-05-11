@@ -4,6 +4,7 @@ export interface JwtPayload {
   email: string;
   nickname: string;
   avatar: string;
+  customerId: string | null;
   info: string | null;
   createdAt: Date;
   completedQuestIds: string[];

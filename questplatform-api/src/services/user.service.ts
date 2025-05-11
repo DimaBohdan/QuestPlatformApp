@@ -36,13 +36,15 @@ export class UserService {
     return this.userRepository.createUser(data);
   }
 
+  async setCustomerId(userId: string, customerId: string): Promise<User> {
+    const user = await this.findById(userId);
+    return this.userRepository.setCustomerId(userId, customerId)
+  }
+
   async updateUserById(id: string, data: UpdateUserDto): Promise<User> {
-    const user = await this.userRepository.findById(id)
+    const user = await this.findById(id)
     if (!data) {
       throw new BadRequestException('Update data is empty')
-    }
-    if (!user) {
-      throw new NotFoundException(`User with nickname "${id}" not found`);
     }
     return this.userRepository.updateUserById(id, data);
   }
