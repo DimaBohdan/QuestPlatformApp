@@ -38,6 +38,15 @@ export class UserRepository {
     return this.prisma.user.create({ data });
   }
 
+  async setCustomerId(userId: string, customerId: string): Promise<User> {
+    return this.prisma.user.update({
+      where: { id: userId },
+      data: {
+        customerId
+      }
+    })
+  }
+
   async updateUserById(id: string, data: UpdateUserDto): Promise<User> {
     return this.prisma.user.update({ 
       where: { id },

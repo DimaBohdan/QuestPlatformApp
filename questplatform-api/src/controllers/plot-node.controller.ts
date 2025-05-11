@@ -65,7 +65,6 @@ export class PlotNodeController {
   @ApiParam({ name: 'nodeId', description: 'Node ID' })
   deleteOption(
     @Param('nodeId') id: string,
-    @Req() req: RequestWithUser,
   ) {
     return this.plotNodeService.delete(id);
   }

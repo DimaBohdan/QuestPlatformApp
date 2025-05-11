@@ -1,12 +1,13 @@
-import { Controller, Get, Param, Patch, Post, Req, UseGuards } from '@nestjs/common';
+import { Body, Controller, Get, Param, Patch, Post, Req, UseGuards } from '@nestjs/common';
 import { QuestRunService } from '../services/quest-run.service';
 import { RequestWithUser } from 'utils/types/RequestWithUser';
-import { ApiTags } from '@nestjs/swagger';
+import { ApiParam, ApiTags } from '@nestjs/swagger';
 import { JwtAuthGuard } from 'utils/guards/jwt.guard';
 import { Public } from 'utils/decorators/public.decorator';
 import { PermissionsGuard } from 'utils/guards/permission.guard';
 import { QuestRunOwnershipGuard } from 'utils/guards/run.ownership.guard';
 import { Permissions } from 'utils/decorators/permissions.decorator';
+import { CreateQuestRunDto } from 'src/dto/create.quest-run.dto';
 
 @ApiTags('Quest Run')
 @Controller('quest-run')
@@ -15,15 +16,23 @@ export class QuestRunController {
   constructor(private readonly questRunService: QuestRunService) {}
 
   @Post('start/:questId/single')
-  async startSinglePlayer(@Param('questId') questId: string, @Req() req: RequestWithUser) {
+  @ApiParam({ name: 'questId', description: 'Quest ID' })
+  async startSinglePlayer(
+    @Param('questId') questId: string,
+    @Req() req: RequestWithUser,
+  ) {
     const userId = req.user.id;
     return this.questRunService.startSinglePlayer(questId, userId);
   }
 
   @Post('start/:questId/multiplayer')
-  async startMultiplayer(@Param('questId') questId: string, @Req() req: RequestWithUser) {
+  async startMultiplayer(
+    @Param('questId') questId: string,
+    @Req() req: RequestWithUser,
+    @Body() data?: CreateQuestRunDto,
+  ) {
     const userId = req.user.id;
-    return this.questRunService.startMultiplayer(questId, userId);
+    return this.questRunService.startMultiplayer(questId, userId, data);
   }
 
   @Patch('launch/:runId')

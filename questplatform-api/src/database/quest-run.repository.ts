@@ -1,5 +1,6 @@
 import { Injectable } from "@nestjs/common";
-import { QuestRun, QuestRunStatus } from "@prisma/client";
+import { QuestRun, QuestRunMode, QuestRunStatus } from "@prisma/client";
+import { CreateQuestRunDto } from "src/dto/create.quest-run.dto";
 import { PrismaService } from "src/prisma/prisma.service";
 
 @Injectable()
@@ -10,7 +11,7 @@ export class QuestRunRepository {
     return this.prisma.questRun.create({
       data: {
         questId,
-        mode: 'SINGLE_PLAYER',
+        mode: QuestRunMode.SINGLE_PLAYER,
         createdById: userId,
         status: QuestRunStatus.INACTIVE,
         startedAt: new Date(),
@@ -18,14 +19,15 @@ export class QuestRunRepository {
     });
   }
 
-  async createMultipleRun(questId: string, userId: string, code: string): Promise<QuestRun> {
+  async createMultipleRun(questId: string, userId: string, code: string, data?: CreateQuestRunDto): Promise<QuestRun> {
     return this.prisma.questRun.create({
       data: {
         questId,
-        mode: 'MULTIPLAYER',
+        mode: QuestRunMode.MULTIPLAYER,
         createdById: userId,
         sessionCode: code,
         status: QuestRunStatus.INACTIVE,
+        ...data,
       },
     });
   }
@@ -57,6 +59,17 @@ export class QuestRunRepository {
     return this.prisma.questRun.findUnique({ where: { id: runId } });
   }
   
+  async findScheduledRunsToLaunch(date: Date): Promise<QuestRun[]> {
+    return this.prisma.questRun.findMany({
+      where: {
+        scheduledAt: {
+          lte: date,
+        },
+        status: 'INACTIVE',
+      },
+    });
+  }  
+
   async completeRun(runId: string): Promise<QuestRun> {
     return this.prisma.questRun.update({
       where: { id: runId },

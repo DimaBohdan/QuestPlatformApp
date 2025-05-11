@@ -12,7 +12,7 @@ import { QuestOwnershipGuard } from 'utils/guards/quest.ownership.guard';
 
 @ApiTags('Task')
 @Controller('quest-task')
-@UseGuards(JwtAuthGuard, PermissionsGuard, QuestOwnershipGuard, QuestTaskOwnershipGuard)
+@UseGuards(JwtAuthGuard)
 export class QuestTaskController {
   constructor(private readonly questTaskService: QuestTaskService) {}
 
@@ -23,6 +23,9 @@ export class QuestTaskController {
     return this.questTaskService.findTasksByQuest(questId);
   }
 
+  @UseGuards(PermissionsGuard, QuestOwnershipGuard)
+  @Permissions('user:edit:own')
+  @ApiParam({ name: 'questId', description: 'Quest ID' })
   @Get('stream/:questId')
   async streamTasks(
     @Param('questId') questId: string,

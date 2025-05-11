@@ -44,6 +44,9 @@ import { PermissionModule } from './modules/permission.module';
 import { PermissionsGuard } from 'utils/guards/permission.guard';
 import { PermissionService } from './services/permission.service';
 import { PermissionRepository } from './database/permission.repository';
+import { ScheduleModule } from '@nestjs/schedule';
+import { AiModule } from './modules/ai.module';
+import { PaymentModule } from './modules/payment.module';
 
 
 @Module({
@@ -65,16 +68,13 @@ import { PermissionRepository } from './database/permission.repository';
       ttl: 60,
     }),
   }),
-  EventEmitterModule.forRoot(), AuthModule, UserModule, PrismaModule, QuestModule, MediaModule, SingleChoiceTaskModule, QuestTaskModule, UserQuestProgressModule, UserAnswerModule, OptionModule, QuestViewModule, MultipleChoiceTaskModule, TextFieldTaskModule, FindOnPictureTaskModule, CoordinateModule, FindOnMapTaskModule, PlotNodeModule, PlotChoiceModule, FriendshipModule, QuestRunModule, TaskTimerModule, SingleChoiceAnswerModule, MultipleChoiceAnswerModule, TextFieldAnswerModule, CoordinateAnswerModule, QuestReviewModule, RoleModule, PermissionModule],
+  ScheduleModule.forRoot(),
+  EventEmitterModule.forRoot(), AuthModule, UserModule, PrismaModule, QuestModule, MediaModule, SingleChoiceTaskModule, QuestTaskModule, UserQuestProgressModule, UserAnswerModule, OptionModule, QuestViewModule, MultipleChoiceTaskModule, TextFieldTaskModule, FindOnPictureTaskModule, CoordinateModule, FindOnMapTaskModule, PlotNodeModule, PlotChoiceModule, FriendshipModule, QuestRunModule, TaskTimerModule, SingleChoiceAnswerModule, MultipleChoiceAnswerModule, TextFieldAnswerModule, CoordinateAnswerModule, QuestReviewModule, RoleModule, PermissionModule, PaymentModule, AiModule],
   controllers: [],
   providers: [
   {
     provide: APP_GUARD,
     useClass: ThrottlerGuard,
-  },
-  {
-    provide: APP_GUARD,
-    useClass: JwtAuthGuard,
   },
   {
     provide: APP_INTERCEPTOR,
