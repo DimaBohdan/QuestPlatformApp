@@ -1,18 +1,20 @@
 import { Injectable } from '@nestjs/common';
-import { Category, Quest, QuestStatus, QuestTask } from '@prisma/client';
+import { Quest, QuestStatus } from '@prisma/client';
 import { PrismaService } from 'src/prisma/prisma.service';
 import { CreateQuestDto } from 'src/dto/quest.create.dto';
 import { UpdateQuestDto } from 'src/dto/quest.update.dto';
-import { QuestSortField } from 'src/enums/QuestSortField.enum';
-import { QuestSortOrder } from 'src/enums/QuestSortOrder.enum';
+import { QuestFilter } from 'utils/types/quest-filter';
+import { QuestSort } from 'utils/types/quest-sort';
+import { Pagination } from 'utils/types/pagination';
 
 @Injectable()
 export class QuestRepository {
   constructor(private prisma: PrismaService) {}
 
   async findAll(
-    filter?: { title?: string; category?: Category; difficulty?: number },
-    sort?: { sortBy?: QuestSortField, sortOrder?: QuestSortOrder },
+    filter?: QuestFilter,
+    sort?: QuestSort,
+    pagination?: Pagination,
     questStatus?: QuestStatus
   ): Promise<Quest[]> {
     return this.prisma.quest.findMany({
@@ -20,7 +22,15 @@ export class QuestRepository {
         ...(questStatus ? { quest_status: questStatus } : {}),
         title: filter?.title ? { contains: filter.title, mode: 'insensitive' } : undefined,
         category: filter?.category,
-        difficulty: filter?.difficulty,
+        difficulty: {
+          gte: filter?.minDifficulty,
+          lte: filter?.maxDifficulty,
+        },
+        rating: {
+          gte: filter?.minRating,
+          lte: filter?.maxRating,
+        },
+        ...(filter?.tags?.length && { tags: { hasSome: filter.tags } }),
       },
       include: {
         author: true,
@@ -32,12 +42,16 @@ export class QuestRepository {
       orderBy: sort?.sortBy
       ? { [sort.sortBy]: sort.sortOrder ?? 'asc' }
       : { createdAt: 'desc' },
+      skip: pagination?.page && pagination?.pageSize ? (pagination.page - 1) * pagination.pageSize : undefined,
+      take: pagination?.pageSize,
     });
   }
 
   async findMyQuests(
     userId: string,
-    filter?: { title?: string; category?: Category; difficulty?: number },
+    filter?: QuestFilter,
+    sort?: QuestSort,
+    pagination?: Pagination,
     questStatus?: QuestStatus
   ): Promise<Quest[]> {
     return this.prisma.quest.findMany({
@@ -46,7 +60,15 @@ export class QuestRepository {
         authorId: userId,
         title: filter?.title ? { contains: filter.title, mode: 'insensitive' } : undefined,
         category: filter?.category,
-        difficulty: filter?.difficulty,
+        difficulty: {
+          gte: filter?.minDifficulty,
+          lte: filter?.maxDifficulty,
+        },
+        rating: {
+          gte: filter?.minRating,
+          lte: filter?.maxRating,
+        },
+        ...(filter?.tags?.length && { tags: { hasSome: filter.tags } }),
       },
       include: {
         reviews: true,
@@ -54,7 +76,11 @@ export class QuestRepository {
         previewImage: true,
         theme: true,
       },
-      orderBy: { createdAt: 'desc' },
+      orderBy: sort?.sortBy
+      ? { [sort.sortBy]: sort.sortOrder ?? 'asc' }
+      : { createdAt: 'desc' },
+      skip: pagination?.page && pagination?.pageSize ? (pagination.page - 1) * pagination.pageSize : undefined,
+      take: pagination?.pageSize,
     });
   }
 

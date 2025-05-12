@@ -1,19 +1,19 @@
 import { Injectable, NotFoundException, ForbiddenException, forwardRef, Inject, BadRequestException } from '@nestjs/common';
 import { QuestRepository } from 'src/database/quest.repository';
 import { CreateQuestDto } from '../dto/quest.create.dto';
-import { Category, Quest, QuestStatus, User } from '@prisma/client';
+import { Quest, QuestStatus } from '@prisma/client';
 import { UpdateQuestDto } from '../dto/quest.update.dto';
 import { MediaService } from 'src/services/media.service';
 import { QuestTaskService } from 'src/services/quest-task.service';
-import { QuestSortField } from '../enums/QuestSortField.enum';
-import { QuestSortOrder } from '../enums/QuestSortOrder.enum';
 import { OnEvent } from '@nestjs/event-emitter';
 import { QuestReviewService } from './quest-review.service';
+import { QuestSort } from 'utils/types/quest-sort';
+import { QuestFilter } from 'utils/types/quest-filter';
+import { Pagination } from 'utils/types/pagination';
 
 
 @Injectable()
 export class QuestService {
-
   constructor(
     private questRepository: QuestRepository, 
     private mediaService: MediaService,
@@ -24,24 +24,37 @@ export class QuestService {
   ) {}
 
   async getAllPublishedQuests(
-    filter?: { title?: string; category?: Category; difficulty?: number },
-    sort?: { sortBy?: QuestSortField, sortOrder?: QuestSortOrder }
+    filter?: QuestFilter,
+    sort?: QuestSort,
+    pagination?: Pagination,
   ): Promise<Quest[]> {
-    return this.questRepository.findAll(filter, sort, QuestStatus.PUBLISHED);
+    return this.questRepository.findAll(filter, sort, pagination, QuestStatus.PUBLISHED);
   }
 
-  async getAllReadyQuests(filter?: { title?: string; category?: Category; difficulty?: number },
-    sort?: { sortBy?: QuestSortField, sortOrder?: QuestSortOrder }
+  async getAllReadyQuests(
+    filter?: QuestFilter,
+    sort?: QuestSort,
+    pagination?: Pagination,
   ): Promise<Quest[]> {
-    return this.questRepository.findAll(filter, sort, QuestStatus.READY);
+    return this.questRepository.findAll(filter, sort, pagination, QuestStatus.READY);
   }
 
-  async getAllMyQuests(userId: string, filter?: { title?: string; category?: Category; difficulty?: number }): Promise<Quest[]> {
-    return this.questRepository.findMyQuests(userId, filter);
+  async getAllMyQuests(
+    userId: string,
+    filter?: QuestFilter,
+    sort?: QuestSort,
+    pagination?: Pagination,
+  ): Promise<Quest[]> {
+    return this.questRepository.findMyQuests(userId, filter, sort, pagination);
   }
 
-  async getMyReadyQuests(userId: string, filter?: { title?: string; category?: Category; difficulty?: number }): Promise<Quest[]> {
-    return this.questRepository.findMyQuests(userId, filter, QuestStatus.READY);
+  async getMyReadyQuests(
+    userId: string,
+    filter?: QuestFilter,
+    sort?: QuestSort,
+    pagination?: Pagination,
+  ): Promise<Quest[]> {
+    return this.questRepository.findMyQuests(userId, filter, sort, pagination, QuestStatus.READY);
   }
 
   async findQuestById(id: string, questStatus?: QuestStatus): Promise<Quest> {

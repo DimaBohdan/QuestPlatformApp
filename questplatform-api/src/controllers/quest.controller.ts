@@ -1,17 +1,17 @@
 import { Controller, Get, Post, Put, Body, Param, Query, UseGuards, Delete, Request, Req, Patch, UploadedFile, NotFoundException, BadRequestException } from '@nestjs/common';
 import { CreateQuestDto } from '../dto/quest.create.dto';
 import { JwtAuthGuard } from 'utils/guards/jwt.guard';
-import { Category, Quest, QuestStatus, QuestTaskType, User} from '@prisma/client';
+import { Quest, QuestStatus } from '@prisma/client';
 import { QuestService } from '../services/quest.service';
 import { UpdateQuestDto } from '../dto/quest.update.dto';
 import { Public } from 'utils/decorators/public.decorator';
 import { RequestWithUser } from 'utils/types/RequestWithUser';
-import { ApiBody, ApiOperation, ApiParam, ApiQuery, ApiTags } from '@nestjs/swagger';
-import { QuestSortField } from '../enums/QuestSortField.enum';
-import { QuestSortOrder } from '../enums/QuestSortOrder.enum';
+import { ApiBody, ApiExtraModels, ApiOperation, ApiParam, ApiTags } from '@nestjs/swagger';
 import { PermissionsGuard } from 'utils/guards/permission.guard';
 import { Permissions } from 'utils/decorators/permissions.decorator';
 import { QuestOwnershipGuard } from 'utils/guards/quest.ownership.guard';
+import { QuestsQueryDto } from 'src/dto/quest-query.dto';
+import { ApiQueriesFromDto } from 'utils/decorators/api-query-dto.decorator';
 
 @ApiTags('Quest')
 @Controller('quest')
@@ -21,48 +21,50 @@ export class QuestController {
 
   @Public()
   @Get()
-  @ApiOperation({ summary: 'Get all public quests' })
-  @ApiQuery({ name: 'title', required: false, description: 'Filter by quest title' })
-  @ApiQuery({ name: 'category', required: false, description: 'Filter by quest category' })
-  @ApiQuery({ name: 'difficulty', required: false, description: 'Filter by quest difficulty', type: Number })
-  @ApiQuery({ name: 'sortBy', required: false, enum: QuestSortField, description: 'Sort by parameters' })
-  @ApiQuery({ name: 'sortOrder', required: false, enum: QuestSortOrder, description: 'Choose sortOrder' })
+  @ApiExtraModels(QuestsQueryDto)
+  @ApiQueriesFromDto(QuestsQueryDto)
   async getPublishedQuests(
-    @Query('title') title?: string,
-    @Query('category') category?: Category,
-    @Query('difficulty') difficulty?: number,
-    @Query('sortBy') sortBy?: QuestSortField,
-    @Query('sortOrder') sortOrder?: QuestSortOrder,
+    @Query() query: QuestsQueryDto,
   ): Promise<Quest[]> {
-    return this.questService.getAllPublishedQuests({ title, category, difficulty }, { sortBy, sortOrder });
+    const { sortBy, sortOrder, page, pageSize, ...filter } = query;
+    return this.questService.getAllPublishedQuests(
+      filter,
+      { sortBy, sortOrder },
+      { page, pageSize },
+    );
   }
 
   @Get('/my')
   @ApiOperation({ summary: 'Get quests created by user' })
-  @ApiQuery({ name: 'title', required: false, description: 'Filter by quest title' })
-  @ApiQuery({ name: 'category', required: false, description: 'Filter by quest category' })
-  @ApiQuery({ name: 'difficulty', required: false, description: 'Filter by quest difficulty', type: Number })
+  @ApiExtraModels(QuestsQueryDto)
+  @ApiQueriesFromDto(QuestsQueryDto)
   async getMyQuests(
     @Req() req: RequestWithUser,
-    @Query('title') title?: string,
-    @Query('category') category?: Category,
-    @Query('difficulty') difficulty?: number,
+    @Query() query: QuestsQueryDto,
   ): Promise<Quest[]> {
-    return this.questService.getAllMyQuests(req.user.id, { title, category, difficulty });
+    const { sortBy, sortOrder, page, pageSize, ...filter } = query;
+    return this.questService.getAllMyQuests(
+      req.user.id,
+      filter,
+      { sortBy, sortOrder },
+      { page, pageSize },
+    );
   }
 
   @Get('/my-ready')
   @ApiOperation({ summary: 'Get quests created by user' })
-  @ApiQuery({ name: 'title', required: false, description: 'Filter by quest title' })
-  @ApiQuery({ name: 'category', required: false, description: 'Filter by quest category' })
-  @ApiQuery({ name: 'difficulty', required: false, description: 'Filter by quest difficulty', type: Number })
+  @ApiExtraModels(QuestsQueryDto)
+  @ApiQueriesFromDto(QuestsQueryDto)
   async getMyReadyQuests(
     @Req() req: RequestWithUser,
-    @Query('title') title?: string,
-    @Query('category') category?: Category,
-    @Query('difficulty') difficulty?: number,
+    @Query() query: QuestsQueryDto,
   ): Promise<Quest[]> {
-    return this.questService.getMyReadyQuests(req.user.id, { title, category, difficulty });
+    const { sortBy, sortOrder, page, pageSize, ...filter } = query;
+    return this.questService.getMyReadyQuests(req.user.id, 
+      filter,
+      { sortBy, sortOrder },
+      { page, pageSize },
+    );
   }
 
   @Public()
