@@ -13,7 +13,7 @@ import { Permissions } from 'utils/decorators/permissions.decorator';
 
 @ApiTags('Interactive Plot Task')
 @Controller('interactive-plot-task')
-@UseGuards(JwtAuthGuard, PermissionsGuard, QuestOwnershipGuard, QuestTaskOwnershipGuard)
+@UseGuards(PermissionsGuard, QuestOwnershipGuard, QuestTaskOwnershipGuard)
 export class InteractivePlotTaskController implements IQuestControllerTask {
   constructor(
     private readonly taskService: QuestTaskService,

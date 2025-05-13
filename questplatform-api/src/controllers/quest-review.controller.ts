@@ -5,15 +5,12 @@ import { UpdateQuestReviewDto } from 'src/dto/update.quest-review.dto';
 import { QuestReviewService } from 'src/services/quest-review.service';
 import { Permissions } from 'utils/decorators/permissions.decorator';
 import { Public } from 'utils/decorators/public.decorator';
-import { JwtAuthGuard } from 'utils/guards/jwt.guard';
 import { PermissionsGuard } from 'utils/guards/permission.guard';
-import { QuestOwnershipGuard } from 'utils/guards/quest.ownership.guard';
 import { ReviewOwnershipGuard } from 'utils/guards/review.ownership.guard';
 import { RequestWithUser } from 'utils/types/RequestWithUser';
 
 @ApiTags('Quest Review')
 @Controller('quest-review')
-@UseGuards(JwtAuthGuard)
 export class QuestReviewController {
   constructor(private questReviewService: QuestReviewService) {}
 

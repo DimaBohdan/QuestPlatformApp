@@ -82,6 +82,10 @@ import { PaymentModule } from './modules/payment.module';
   },
   {
     provide: APP_GUARD,
+    useClass: JwtAuthGuard,
+  },
+  {
+    provide: APP_GUARD,
     useClass: PermissionsGuard,
   },
   PermissionService,

@@ -122,6 +122,14 @@ export class QuestRunService {
     return run;
   }
 
+  async findTimeSpent(runId: string): Promise<number> {
+    const run = await this.getQuestRunById(runId);
+    if (!run?.startedAt) return 0;
+    const end = run.completedAt ?? new Date();
+    const timeSpent = Math.floor((end.getTime() - run.startedAt.getTime()) / 1000);
+    return Math.max(0, timeSpent);
+  }
+
   async findBySessionCode(code: string): Promise<QuestRun> {
     const questRun = await this.questRunRepository.findBySessionCode(code);
     if (!questRun) {

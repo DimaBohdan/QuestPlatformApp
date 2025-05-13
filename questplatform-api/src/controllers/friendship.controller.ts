@@ -9,7 +9,6 @@ import { Permissions } from 'utils/decorators/permissions.decorator';
 
 @ApiTags('Friendship')
 @Controller('friendship')
-@UseGuards(JwtAuthGuard)
 export class FriendshipController {
   constructor(private readonly friendshipService: FriendshipService) {}
 

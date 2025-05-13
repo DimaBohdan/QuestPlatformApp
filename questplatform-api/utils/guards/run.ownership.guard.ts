@@ -1,7 +1,6 @@
 import { CanActivate, ExecutionContext, Injectable } from "@nestjs/common";
 import { Reflector } from "@nestjs/core";
 import { QuestRunService } from "src/services/quest-run.service";
-import { QuestService } from "src/services/quest.service";
 import { IS_PUBLIC_KEY } from "utils/decorators/public.decorator";
 import { RequestWithUser } from "utils/types/RequestWithUser";
 
