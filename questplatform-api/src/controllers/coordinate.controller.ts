@@ -11,7 +11,6 @@ import { QuestTaskOwnershipGuard } from 'utils/guards/quest-task.ownership.guard
 
 @ApiTags('Coordinate')
 @Controller('coordinates')
-@UseGuards(JwtAuthGuard)
 export class CoordinateController {
   constructor(private readonly coordinateService: CoordinateService) {}
 

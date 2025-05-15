@@ -3,7 +3,6 @@ import { FriendshipService } from '../services/friendship.service';
 import { ApiOperation, ApiParam, ApiTags } from '@nestjs/swagger';
 import { RequestWithUser } from 'utils/types/RequestWithUser';
 import { Friendship } from '@prisma/client';
-import { JwtAuthGuard } from 'utils/guards/jwt.guard';
 import { PermissionsGuard } from 'utils/guards/permission.guard';
 import { Permissions } from 'utils/decorators/permissions.decorator';
 

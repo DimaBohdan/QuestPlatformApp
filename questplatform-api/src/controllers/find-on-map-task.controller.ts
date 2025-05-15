@@ -5,16 +5,14 @@ import { QuestionTaskDTO } from 'src/dto/question.task.dto';
 import { QuestTaskService } from 'src/services/quest-task.service';
 import { IQuestControllerTask } from 'utils/interfaces/quest-controller-task.interface';
 import { FindOnMapTaskService } from '../services/find-on-map-task.service';
-import { JwtAuthGuard } from 'utils/guards/jwt.guard';
 import { PermissionsGuard } from 'utils/guards/permission.guard';
 import { QuestOwnershipGuard } from 'utils/guards/quest.ownership.guard';
 import { QuestTaskOwnershipGuard } from 'utils/guards/quest-task.ownership.guard';
 import { Permissions } from 'utils/decorators/permissions.decorator';
-import { RequestWithUser } from 'utils/types/RequestWithUser';
 
 @ApiTags('Find On Map Task')
 @Controller('find-on-map-task')
-@UseGuards(JwtAuthGuard, PermissionsGuard, QuestOwnershipGuard, QuestTaskOwnershipGuard)
+@UseGuards(PermissionsGuard, QuestOwnershipGuard, QuestTaskOwnershipGuard)
 export class FindOnMapTaskController implements IQuestControllerTask {
   constructor(
     private readonly taskService: QuestTaskService,
