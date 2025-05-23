@@ -7,7 +7,6 @@ import { Response } from 'express';
 import { JwtAuthGuard } from 'utils/guards/jwt.guard';
 import { PermissionsGuard } from 'utils/guards/permission.guard';
 import { Permissions } from 'utils/decorators/permissions.decorator';
-import { QuestTaskOwnershipGuard } from 'utils/guards/quest-task.ownership.guard';
 import { QuestOwnershipGuard } from 'utils/guards/quest.ownership.guard';
 
 @ApiTags('Task')

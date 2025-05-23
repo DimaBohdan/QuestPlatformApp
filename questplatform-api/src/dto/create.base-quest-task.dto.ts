@@ -3,6 +3,11 @@ import { QuestTaskType } from '@prisma/client';
 import { ApiProperty } from '@nestjs/swagger';
 
 export class CreateBaseQuestTaskDto {
+  @ApiProperty({ description: 'The title of the task' })
+  @IsNotEmpty()
+  @IsString()
+  title?: string;
+
   @ApiProperty({ description: 'The question of the task' })
   @IsNotEmpty()
   @IsString()

@@ -151,6 +151,7 @@ model UserCompletedQuest {
 
 model QuestTask {
   id      String   @id @default(uuid())
+  title   String   @default("NewTask")
   questId String
   quest   Quest    @relation(fields: [questId], references: [id], onDelete: Cascade)
   question String
